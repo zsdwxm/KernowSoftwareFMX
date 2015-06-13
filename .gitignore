@@ -99,3 +99,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+Finalbuilder/build_test.fbl7
+KernowSoftwareFMX.rc
+*.fbz7
+KernowSoftwareFMX.res
