@@ -1,5 +1,7 @@
 # KernowSoftwareFMX
-Kernow Software FMX Components
+Kernow Software FMX Components for XE8. 
+
+(May work with earlier versions but untested)
 
 Firemonkey Slide menu for Delphi.  Inherits from a non-visual component to keep things simple.
 
