@@ -2,8 +2,19 @@ unit ksSlideMenu;
 
 interface
 
+{$IFDEF VER290}
+  {$DEFINE XE8_OR_NEWER}
+{$ENDIF}
+
+
 uses System.UITypes, FMX.Controls, FMX.Layouts, FMX.Objects, System.Classes,
-  FMX.Types, Generics.Collections, FMX.Graphics, FMX.ImgList, System.UIConsts;
+  FMX.Types, Generics.Collections, FMX.Graphics, System.UIConsts
+  {$IFDEF XE8_OR_NEWER}
+  ,FMX.ImgList
+  {$ENDIF}
+  ;
+
+
 
 type
   TSelectMenuItemEvent = procedure(Sender: TObject; AId: string) of object;
@@ -76,7 +87,9 @@ type
     FBackground: TRectangle;
 
     FShowing: Boolean;
+    {$IFDEF XE8_OR_NEWER}
     FImages: TImageList;
+    {$ENDIF}
     FTopPadding: integer;
     FFadeBackground: Boolean;
     FMenuPosition: TMenuPosition;
@@ -100,12 +113,17 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear;
+    {$IFDEF XE8_OR_NEWER}
     function AddMenuItem(AId, AText: string; const AImageIndex: integer = -1): TksSlideMenuItem;
+    {$ENDIF}
+    function AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlideMenuItem;
     procedure ToggleMenu;
     procedure UpdateMenu;
   published
     property FadeBackgound: Boolean read FFadeBackground write FFadeBackground default True;
+    {$IFDEF XE8_OR_NEWER}
     property Images: TImageList read FImages write FImages;
+    {$ENDIF}
     property ItemHeight: integer read GetItemHeight write SetItemHeight;
     property ItemIndex: integer read GetItemIndex write SetItemIndex;
     property TopPadding: integer read FTopPadding write SetTopPadding default 0;
@@ -140,6 +158,8 @@ end;
 
 { TSlideMenu }
 
+{$IFDEF XE8_OR_NEWER}
+
 function TksSlideMenu.AddMenuItem(AId, AText: string; const AImageIndex: integer = -1): TksSlideMenuItem;
 var
   AImage: TBitmap;
@@ -148,8 +168,14 @@ begin
   AImage := nil;
   ASize.Width := 64;
   ASize.Height := 64;
-
   AImage := Images.Bitmap(ASize, AImageIndex);
+  Result := AddMenuItem(AId, AText, AImage);
+end;
+
+{$ENDIF}
+
+function TksSlideMenu.AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlideMenuItem;
+begin
   Result := FItems.AddMenuItem(AId, AText, AImage);
   UpdateMenu;
 end;

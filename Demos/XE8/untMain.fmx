@@ -1,0 +1,80 @@
+object Form6: TForm6
+  Left = 0
+  Top = 0
+  Caption = 'Form6'
+  ClientHeight = 480
+  ClientWidth = 378
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object SlideMenu1: TksSlideMenu
+    ItemHeight = 44
+    ItemIndex = -1
+    BackgroundColor = xFFECECEC
+    SelectedColor = claRed
+    SelectedFontColor = claWhite
+    UnSelectedFontColor = claDodgerblue
+    OnSelectMenuItemEvent = SlideMenu1SelectMenuItemEvent
+    Left = 56
+    Top = 136
+  end
+  object SlideMenu2: TksSlideMenu
+    ItemHeight = 44
+    ItemIndex = -1
+    BackgroundColor = claMidnightblue
+    MenuPosition = mpRight
+    SelectedColor = claRed
+    SelectedFontColor = claWhite
+    UnSelectedFontColor = claWhite
+    OnSelectMenuItemEvent = SlideMenu2SelectMenuItemEvent
+    Left = 136
+    Top = 136
+  end
+  object ToolBar1: TToolBar
+    Size.Width = 378.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    object btnLeftMenu: TButton
+      Align = Left
+      Size.Width = 81.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toolbutton'
+      TabOrder = 1
+      Text = 'Left Menu'
+      OnClick = btnLeftMenuClick
+    end
+    object btnRightMenu: TButton
+      Align = Right
+      Position.X = 297.000000000000000000
+      Size.Width = 81.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'toolbutton'
+      TabOrder = 0
+      Text = 'Right Menu'
+      OnClick = btnRightMenuClick
+    end
+    object Label1: TLabel
+      Align = Client
+      Size.Width = 216.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'ksSlideMenu Demo'
+    end
+  end
+  object Label2: TLabel
+    StyledSettings = [Family, Style, FontColor]
+    Position.X = 32.000000000000000000
+    Position.Y = 88.000000000000000000
+    Size.Width = 289.000000000000000000
+    Size.Height = 41.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Font.Size = 18.000000000000000000
+    Text = 'SELECT AN MENU ITEM'
+  end
+end

@@ -5,12 +5,11 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, System.ImageList, FMX.ImgList, ksSlideMenu;
+  FMX.Controls.Presentation, ksSlideMenu;
 
 type
   TForm6 = class(TForm)
     SlideMenu1: TksSlideMenu;
-    menuImages: TImageList;
     SlideMenu2: TksSlideMenu;
     ToolBar1: TToolBar;
     btnLeftMenu: TButton;
@@ -47,7 +46,7 @@ end;
 
 procedure TForm6.FormCreate(Sender: TObject);
 begin
-  SlideMenu1.AddMenuItem('ABOUT', 'About Us', 4);
+  SlideMenu1.AddMenuItem('ABOUT', 'About Us', );
   SlideMenu1.AddMenuItem('RESERVE', 'Make a Booking', 2);
   SlideMenu1.AddMenuItem('MY BOOKINGS', 'My Bookings', 0);
   SlideMenu1.AddMenuItem('MENU', 'View Menus', 3);
