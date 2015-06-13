@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, ksSlideMenu;
+  FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList;
 
 type
   TForm6 = class(TForm)
@@ -16,6 +16,7 @@ type
     btnRightMenu: TButton;
     Label1: TLabel;
     Label2: TLabel;
+    ImageList1: TImageList;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
@@ -46,15 +47,15 @@ end;
 
 procedure TForm6.FormCreate(Sender: TObject);
 begin
-  SlideMenu1.AddMenuItem('ABOUT', 'About Us', );
-  SlideMenu1.AddMenuItem('RESERVE', 'Make a Booking', 2);
-  SlideMenu1.AddMenuItem('MY BOOKINGS', 'My Bookings', 0);
+  SlideMenu1.AddMenuItem('ABOUT', 'About Us', 0);
+  SlideMenu1.AddMenuItem('RESERVE', 'Make a Booking', 1);
+  SlideMenu1.AddMenuItem('MY BOOKINGS', 'My Bookings', 2);
   SlideMenu1.AddMenuItem('MENU', 'View Menus', 3);
-  SlideMenu1.AddMenuItem('CONTACT', 'Contact Us', 1);
+  SlideMenu1.AddMenuItem('CONTACT', 'Contact Us', 4);
   SlideMenu1.ItemIndex := 0;
 
-  SlideMenu2.AddMenuItem('ANOTHER', 'Another Menu', 4);
-  SlideMenu2.AddMenuItem('ABOUT', 'About', 2);
+  SlideMenu2.AddMenuItem('ANOTHER', 'Another Menu', 0);
+  SlideMenu2.AddMenuItem('ABOUT', 'About', 5);
 
   SlideMenu2.ItemIndex := 0;
 end;

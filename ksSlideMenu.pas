@@ -114,9 +114,9 @@ type
     destructor Destroy; override;
     procedure Clear;
     {$IFDEF XE8_OR_NEWER}
-    function AddMenuItem(AId, AText: string; const AImageIndex: integer = -1): TksSlideMenuItem;
+    function AddMenuItem(AId, AText: string; const AImageIndex: integer = -1): TksSlideMenuItem; overload;
     {$ENDIF}
-    function AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlideMenuItem;
+    function AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlideMenuItem; overload;
     procedure ToggleMenu;
     procedure UpdateMenu;
   published
