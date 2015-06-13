@@ -168,7 +168,8 @@ begin
   AImage := nil;
   ASize.Width := 64;
   ASize.Height := 64;
-  AImage := Images.Bitmap(ASize, AImageIndex);
+  if Images <> nil then
+    AImage := Images.Bitmap(ASize, AImageIndex);
   Result := AddMenuItem(AId, AText, AImage);
 end;
 
