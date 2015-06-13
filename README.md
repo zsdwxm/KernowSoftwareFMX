@@ -1,5 +1,5 @@
 # KernowSoftwareFMX
-Kernow Software FMX Components for XE8. 
+Kernow Software FMX Components for XE7 & XE8. 
 
 (May work with earlier versions but untested)
 
