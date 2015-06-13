@@ -14,6 +14,8 @@ Includes demo showing a right and left aligned slider menu.
 - non-visual component for quick integration into existing projects
 - uses bitmap caching for optimised performance
 
+Just the one component at the moment but hopefully I'll add more soon.
+
 
 Any suggestions for updates are welcome :-) 
 
