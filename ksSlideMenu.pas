@@ -24,9 +24,10 @@ type
   TksSlideMenu = class;
 
   TksSlideMenuItem = class
-  private
+  strict private
     FText: string;
     FId: string;
+    FFont: TFont;
     FImage: TBitmap;
     FHeight: integer;
     FIndex: integer;
@@ -35,6 +36,10 @@ type
     destructor Destroy; override;
     property Height: integer read FHeight write FHeight;
     property Index: integer read FIndex;
+    property Font: TFont read FFont write FFont;
+    property Image: TBitmap read FImage write FImage;
+    property ID: string read FId write FId;
+    property Text: string read FText write FText;
   end;
 
   TksSlideMenuItems = class(TObjectList<TksSlideMenuItem>)
@@ -43,7 +48,7 @@ type
   end;
 
   TksSlideMenuCanvas = class(TImage)
-  private
+  strict private
     FBackgroundColor: TAlphaColor;
     FSelectedColor: TAlphaColor;
     FSelectedFontColor: TAlphaColor;
@@ -56,7 +61,6 @@ type
     FOnSelectMenuItemEvent: TSelectMenuItemEvent;
     function ItemAtPos(x, y: single): TksSlideMenuItem;
 
-    procedure RedrawMenu;
     procedure SetItemHeight(const Value: integer);
 
     procedure SetItemIndex(const Value: integer);
@@ -67,6 +71,7 @@ type
   public
     constructor Create(AOwner: TComponent; AItems: TksSlideMenuItems);
     destructor Destroy; override;
+    procedure RedrawMenu;
     property BackgroundColor: TAlphaColor read FBackgroundColor write FBackgroundColor default claNavy;
     property SelectedColor: TAlphaColor read FSelectedColor write FSelectedColor default claRed;
     property SelectedFontColor: TAlphaColor read FSelectedFontColor write FSelectedFontColor default claWhite;
@@ -81,11 +86,11 @@ type
 
   [ComponentPlatformsAttribute(pidWin32 or pidWin64 or  pidiOSDevice)]
   TksSlideMenu = class(TFmxObject)
-  private
+  strict private
     FCanvas: TksSlideMenuCanvas;
     FItems: TksSlideMenuItems;
     FBackground: TRectangle;
-
+    FFont: TFont;
     FShowing: Boolean;
     {$IFDEF XE8_OR_NEWER}
     FImages: TImageList;
@@ -120,6 +125,7 @@ type
     procedure ToggleMenu;
     procedure UpdateMenu;
   published
+    property Font: TFont read FFont write FFont;
     property FadeBackgound: Boolean read FFadeBackground write FFadeBackground default True;
     {$IFDEF XE8_OR_NEWER}
     property Images: TImageList read FImages write FImages;
@@ -178,6 +184,7 @@ end;
 function TksSlideMenu.AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlideMenuItem;
 begin
   Result := FItems.AddMenuItem(AId, AText, AImage);
+  Result.Font.Assign(FFont);
   UpdateMenu;
 end;
 
@@ -190,10 +197,12 @@ end;
 constructor TksSlideMenu.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FFont := TFont.Create;
   FItems := TksSlideMenuItems.Create;
   FCanvas := TksSlideMenuCanvas.Create(Self, FItems);
   FShowing := False;
   FTopPadding := 0;
+  FFont.Size := 14;
 
   FCanvas.OnSelectMenuItemEvent := DoSelectMenuItemEvent;
   FBackground := TRectangle.Create(Self);
@@ -203,6 +212,7 @@ end;
 
 destructor TksSlideMenu.Destroy;
 begin
+  FFont.Free;
   FItems.Free;
   if IsChild(FCanvas) then FCanvas.Free;
   if IsChild(FBackground) then FBackground.Free;
@@ -339,14 +349,17 @@ constructor TksSlideMenuItem.Create(AIndex: integer);
 begin
   inherited Create;
   FImage := TBitmap.Create;
+  FFont := TFont.Create;
   FIndex := AIndex;
 end;
 
 destructor TksSlideMenuItem.Destroy;
 begin
   FImage.Free;
+  FFont.Free;
   inherited;
 end;
+
 
 { TksSlideMenuItems }
 
@@ -354,9 +367,9 @@ function TksSlideMenuItems.AddMenuItem(AId, AText: string; AImage: TBitmap): Tks
 begin
   Result := TksSlideMenuItem.Create(Count);
   if AImage <> nil then
-    Result.FImage.Assign(AImage);
-  Result.FId := AId;
-  Result.FText := AText;
+    Result.Image.Assign(AImage);
+  Result.Id := AId;
+  Result.Text := AText;
   Add(Result);
 end;
 
@@ -397,7 +410,7 @@ begin
   begin
     ItemIndex := AItem.Index;
     if Assigned(FOnSelectMenuItemEvent) then
-      FOnSelectMenuItemEvent(FSlideMenu, AItem.FId);
+      FOnSelectMenuItemEvent(FSlideMenu, AItem.Id);
     Application.ProcessMessages;
     Sleep(200);
     FSlideMenu.ToggleMenu;
@@ -444,19 +457,18 @@ begin
       else
         DrawLine(PointF(0, 0), PointF(0, Height), 1);
 
-      if FItems[ICount].FImage <> nil then
+      if FItems[ICount].Image <> nil then
       begin
         ABmpRect := RectF(0, 0, 32, 32);
         OffsetRect(ABmpRect, 4, ARect.Top+((FItemHeight-32) div 2));
-        DrawBitmap(FItems[ICount].FImage, RectF(0,0,64,64), ABmpRect, 1);
+        DrawBitmap(FItems[ICount].Image, RectF(0,0,64,64), ABmpRect, 1);
       end;
       ARect.Left := 44;
       Fill.Color := FUnselectedFontColor;
       if FItemIndex = ICount then
         Fill.Color := FSelectedFontColor;
-      Font.Family := 'Arial';
-      Font.Size := 14;
-      FillText(ARect, FItems[ICount].FText, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
+      Font.Assign(FItems[ICount].Font);
+      FillText(ARect, FItems[ICount].Text, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
       OffsetRect(ARect, 0, FItemHeight);
     end;
     EndScene;
