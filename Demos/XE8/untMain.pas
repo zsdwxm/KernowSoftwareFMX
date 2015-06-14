@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList,
-  FMX.Effects, FMX.Objects;
+  FMX.Effects, FMX.Objects, Vcl.Graphics;
 
 type
   TForm6 = class(TForm)
@@ -17,10 +17,6 @@ type
     btnRightMenu: TButton;
     Label1: TLabel;
     Label2: TLabel;
-    ImageList1: TImageList;
-    RadioButton1: TRadioButton;
-    RadioButton2: TRadioButton;
-    RadioButton3: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);

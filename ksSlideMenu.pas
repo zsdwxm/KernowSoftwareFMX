@@ -88,6 +88,8 @@ type
   strict private
     FCanvas: TksSlideMenuCanvas;
     FItems: TksSlideMenuItems;
+    FShadowLeft: TImage;
+    FShadowRight: TImage;
     FBackground: TRectangle;
     FFormImage: TImage;
     FFont: TFont;
@@ -120,7 +122,7 @@ type
     procedure FadeBackground;
     procedure UnfadeBackground;
     procedure GenerateFormImage;
-
+    procedure GenerateShadows;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -206,6 +208,8 @@ begin
   inherited Create(AOwner);
   FFont := TFont.Create;
   FItems := TksSlideMenuItems.Create;
+  FShadowLeft := TImage.Create(Self);
+  FShadowRight := TImage.Create(Self);
   FCanvas := TksSlideMenuCanvas.Create(Self, FItems);
   FShowing := False;
   FTopPadding := 0;
@@ -216,12 +220,16 @@ begin
   FFormImage.OnClick := DoBackgroundClick;
   FMenuPosition := mpLeft;
   FMenuStyle := msOverlap;
+  GenerateShadows;
+
 end;
 
 destructor TksSlideMenu.Destroy;
 begin
   FFont.Free;
   FItems.Free;
+  if IsChild(FShadowLeft) then FShadowLeft.Free;
+  if IsChild(FShadowRight) then FShadowRight.Free;
   if IsChild(FCanvas) then FCanvas.Free;
   if IsChild(FBackground) then FBackground.Free;
   if IsChild(FFormImage) then FFormImage.Free;
@@ -264,6 +272,7 @@ begin
     ABmp.Height := Round(AForm.Height * AScale);
     ABmp.Canvas.BeginScene;
     AForm.PaintTo(ABmp.Canvas);
+    //ABmp.Canvas.FillRect(RectF(0,0,ABmp.Width, ABmp.Height), 0,0,[],1);
     ABmp.Canvas.EndScene;
     ABmp.Canvas.BeginScene;
     ABmp.Canvas.Stroke.Color := claBlack;
@@ -278,6 +287,56 @@ begin
   end;
 end;
 
+procedure TksSlideMenu.GenerateShadows;
+var
+  AScale: single;
+  AForm: TForm;
+  ABmp: TBitmap;
+begin
+  ABmp := TBitmap.Create;
+  try
+    AScale := GetScreenScale;
+    AForm := (Owner as TForm);
+    ABmp.Width := Round(16 * AScale);
+    ABmp.Height := Round(AForm.Height * AScale);
+    ABmp.Canvas.BeginScene;
+    ABmp.Canvas.Fill.Kind := TBrushKind.Gradient;
+    ABmp.Canvas.Fill.Gradient.Color := claNull;
+    ABmp.Canvas.Fill.Gradient.Color1 := $AA000000;
+    ABmp.Canvas.Fill.Gradient.StartPosition.X := 0;
+    ABmp.Canvas.Fill.Gradient.StartPosition.Y := 1;
+    ABmp.Canvas.Fill.Gradient.StopPosition.X := 1;
+    ABmp.Canvas.FillRect(RectF(0, 0, ABmp.Width, ABmp.Height), 0, 0, [], 1);
+    ABmp.Canvas.EndScene;
+    FShadowLeft.Width := 16;
+    FShadowLeft.Height := Round(AForm.Height);
+    FShadowLeft.Bitmap.Assign(ABmp);
+  finally
+    ABmp.Free;
+  end;
+
+  ABmp := TBitmap.Create;
+  try
+    AScale := GetScreenScale;
+    AForm := (Owner as TForm);
+    ABmp.Width := Round(16 * AScale);
+    ABmp.Height := Round(AForm.Height * AScale);
+    ABmp.Canvas.BeginScene;
+    ABmp.Canvas.Fill.Kind := TBrushKind.Gradient;
+    ABmp.Canvas.Fill.Gradient.Color := $AA000000;
+    ABmp.Canvas.Fill.Gradient.Color1 := claNull;
+    ABmp.Canvas.Fill.Gradient.StartPosition.X := 0;
+    ABmp.Canvas.Fill.Gradient.StartPosition.Y := 1;
+    ABmp.Canvas.Fill.Gradient.StopPosition.X := 1;
+    ABmp.Canvas.FillRect(RectF(0, 0, ABmp.Width, ABmp.Height), 0, 0, [], 1);
+    ABmp.Canvas.EndScene;
+    FShadowRight.Width := 16;
+    FShadowRight.Height := Round(AForm.Height);
+    FShadowRight.Bitmap.Assign(ABmp);
+  finally
+    ABmp.Free;
+  end;
+end;
 function TksSlideMenu.GetBackgroundColor: TAlphaColor;
 begin
   Result := FCanvas.BackgroundColor;
@@ -414,12 +473,14 @@ begin
     FCanvas.RedrawMenu(False);
     ANewX := 0;
     FCanvas.Position.X := 0-200;
+    FFormImage.Position.X := 200;
     if FMenuPosition = mpRight then
     begin
       FCanvas.Position.X := TForm(Owner).Width;
       ANewX := (Owner as TForm).Width - 200;//FCanvas.Width;
+      FFormImage.Position.X := 0-FFormImage.Width;
+
     end;
-    FFormImage.Position.X := 200;
     FCanvas.AddObject(FFormImage);
     TForm(Owner).AddObject(FCanvas);
     FCanvas.AnimateFloatWait('Position.X', ANewX, 0.2);
@@ -429,21 +490,29 @@ end;
 procedure TksSlideMenu.ToggleReveal(ACacheFormImage: Boolean);
 var
   ANewX: Extended;
+  AShadow: TImage;
 begin
   if ACacheFormImage then
     GenerateFormImage;
+
+  case FMenuPosition of
+    mpLeft: AShadow := FShadowLeft;
+    mpRight: AShadow := FShadowRight;
+  end;
+
   FCanvas.Width := 200;
   if FShowing then
   begin
     ANewX := 0;
-    if FMenuPosition = mpRight then
-      ANewX := (Owner as TForm).Width;
     FFormImage.AnimateFloatWait('Position.X', ANewX, 0.2);
     TForm(Owner).RemoveObject(FFormImage);
     TForm(Owner).RemoveObject(FCanvas);
+    FFormImage.RemoveObject(FShadowLeft);
+    FFormImage.RemoveObject(FShadowRight);
   end
   else
   begin
+    AShadow.Position.X := 0-16;
     FCanvas.Height := (Owner as TForm).Height;
     FCanvas.Position.Y := FTopPadding;
     FCanvas.RedrawMenu(False);
@@ -451,11 +520,15 @@ begin
     ANewX := 200;
     if FMenuPosition = mpRight then
     begin
-      FCanvas.Position.X := TForm(Owner).Width;
-      ANewX := (Owner as TForm).Width - 200;//FCanvas.Width;
+      FCanvas.Position.X := TForm(Owner).Width-200;
+      AShadow.Position.X := TForm(Owner).Width;
+
+      ANewX := 0-200;
     end;
     TForm(Owner).AddObject(FCanvas);
     TForm(Owner).AddObject(FFormImage);
+    FFormImage.AddObject(AShadow);
+
     FFormImage.AnimateFloatWait('Position.X', ANewX, 0.2);
   end;
 end;
