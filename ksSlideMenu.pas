@@ -8,20 +8,17 @@ interface
 
 
 uses System.UITypes, FMX.Controls, FMX.Layouts, FMX.Objects, System.Classes,
-  FMX.Types, Generics.Collections, FMX.Graphics, System.UIConsts
+  FMX.Types, Generics.Collections, FMX.Graphics, System.UIConsts, FMX.Effects
   {$IFDEF XE8_OR_NEWER}
   ,FMX.ImgList
   {$ENDIF}
   ;
-
-
 
 type
   TSelectMenuItemEvent = procedure(Sender: TObject; AId: string) of object;
 
   TksMenuPosition = (mpLeft, mpRight);
   TKsMenuStyle = (msOverlap, msReveal, msPush);
-
 
   TksSlideMenu = class;
 
@@ -74,7 +71,7 @@ type
     constructor Create(AOwner: TComponent; AItems: TksSlideMenuItems);
     destructor Destroy; override;
 
-    procedure RedrawMenu;
+    procedure RedrawMenu(AddBorder: Boolean);
     property BackgroundColor: TAlphaColor read FBackgroundColor write FBackgroundColor default claNavy;
     property SelectedColor: TAlphaColor read FSelectedColor write FSelectedColor default claRed;
     property SelectedFontColor: TAlphaColor read FSelectedFontColor write FSelectedFontColor default claWhite;
@@ -99,7 +96,6 @@ type
     FImages: TImageList;
     {$ENDIF}
     FTopPadding: integer;
-    FFadeBackground: Boolean;
     FMenuPosition: TksMenuPosition;
     FMenuStyle: TKsMenuStyle;
     FOnSelectMenuItemEvent: TSelectMenuItemEvent;
@@ -137,7 +133,6 @@ type
     procedure UpdateMenu;
   published
     property Font: TFont read FFont write FFont;
-    property FadeBackgound: Boolean read FFadeBackground write FFadeBackground default True;
     {$IFDEF XE8_OR_NEWER}
     property Images: TImageList read FImages write FImages;
     {$ENDIF}
@@ -158,7 +153,7 @@ type
 
 implementation
 
-uses System.Types, FMX.Forms, FMX.Platform, SysUtils;
+uses System.Types, FMX.Forms, FMX.Platform, SysUtils, FMX.Utils;
 
 procedure Register;
 begin
@@ -219,7 +214,6 @@ begin
   FBackground := TRectangle.Create(Self);
   FFormImage := TImage.Create(Self);
   FFormImage.OnClick := DoBackgroundClick;
-  FFadeBackground := True;
   FMenuPosition := mpLeft;
   FMenuStyle := msOverlap;
 end;
@@ -263,18 +257,25 @@ var
   ABmp: TBitmap;
 begin
   ABmp := TBitmap.Create;
-
-  AScale := GetScreenScale;
-  AForm := (Owner as TForm);
-  ABmp.Width := Round(AForm.Width * AScale);
-  ABmp.Height := Round(AForm.Height * AScale);
-  ABmp.Canvas.BeginScene;
-  AForm.PaintTo(ABmp.Canvas);
-  ABmp.Canvas.EndScene;
-  FFormImage.Width := Round(AForm.Width);
-  FFormImage.Height := Round(AForm.Height);
-  FFormImage.Bitmap.Assign(ABmp);
-  ABmp.Free;
+  try
+    AScale := GetScreenScale;
+    AForm := (Owner as TForm);
+    ABmp.Width := Round(AForm.Width * AScale);
+    ABmp.Height := Round(AForm.Height * AScale);
+    ABmp.Canvas.BeginScene;
+    AForm.PaintTo(ABmp.Canvas);
+    ABmp.Canvas.EndScene;
+    ABmp.Canvas.BeginScene;
+    ABmp.Canvas.Stroke.Color := claBlack;
+    ABmp.Canvas.StrokeThickness := 1;
+    ABmp.Canvas.DrawLine(PointF(0, 0), PointF(0, ABmp.Height), 1);
+    ABmp.Canvas.EndScene;
+    FFormImage.Width := Round(AForm.Width);
+    FFormImage.Height := Round(AForm.Height);
+    FFormImage.Bitmap.Assign(ABmp);
+  finally
+    ABmp.Free;
+  end;
 end;
 
 function TksSlideMenu.GetBackgroundColor: TAlphaColor;
@@ -345,12 +346,16 @@ end;
 
 procedure TksSlideMenu.ToggleMenu;
 begin
+  if FCanvas.HitTest = False then
+    Exit;
+  FCanvas.HitTest := False;
   case FMenuStyle of
     msOverlap: ToggleOverlap;
     msPush: TogglePush(not FShowing);
     msReveal: ToggleReveal(not FShowing);
   end;
   FShowing := not FShowing;
+  FCanvas.HitTest := True;
 end;
 
 procedure TksSlideMenu.ToggleOverlap;
@@ -363,8 +368,7 @@ begin
     ANewX := 0-FCanvas.Width;
     if FMenuPosition = mpRight then
       ANewX := (Owner as TForm).Width;
-    if FFadeBackground then
-      UnfadeBackground;
+    UnfadeBackground;
     FCanvas.AnimateFloatWait('Position.X', ANewX, 0.2);
     TForm(Owner).RemoveObject(FCanvas);
     TForm(Owner).RemoveObject(FBackground);
@@ -373,7 +377,7 @@ begin
   begin
     FCanvas.Height := (Owner as TForm).Height;
     FCanvas.Position.Y := FTopPadding;
-    FCanvas.RedrawMenu;
+    FCanvas.RedrawMenu(True);
     ANewX := 0;
     FCanvas.Position.X := 0-200;//FCanvas.Width;
     if FMenuPosition = mpRight then
@@ -381,8 +385,7 @@ begin
       FCanvas.Position.X := TForm(Owner).Width;
       ANewX := (Owner as TForm).Width - FCanvas.Width;
     end;
-    if FFadeBackground then
-      FadeBackground;
+    FadeBackground;
     TForm(Owner).AddObject(FCanvas);
     FCanvas.AnimateFloatWait('Position.X', ANewX, 0.2);
   end;
@@ -408,7 +411,7 @@ begin
   begin
     FCanvas.Height := (Owner as TForm).Height;
     FCanvas.Position.Y := FTopPadding;
-    FCanvas.RedrawMenu;
+    FCanvas.RedrawMenu(False);
     ANewX := 0;
     FCanvas.Position.X := 0-200;
     if FMenuPosition = mpRight then
@@ -432,7 +435,7 @@ begin
   FCanvas.Width := 200;
   if FShowing then
   begin
-    ANewX := 0;//FCanvas.Width;
+    ANewX := 0;
     if FMenuPosition = mpRight then
       ANewX := (Owner as TForm).Width;
     FFormImage.AnimateFloatWait('Position.X', ANewX, 0.2);
@@ -443,15 +446,14 @@ begin
   begin
     FCanvas.Height := (Owner as TForm).Height;
     FCanvas.Position.Y := FTopPadding;
-    FCanvas.RedrawMenu;
-    ANewX := 200;
+    FCanvas.RedrawMenu(False);
     FCanvas.Position.X := 0;
+    ANewX := 200;
     if FMenuPosition = mpRight then
     begin
       FCanvas.Position.X := TForm(Owner).Width;
       ANewX := (Owner as TForm).Width - 200;//FCanvas.Width;
     end;
-    ANewX := 200;
     TForm(Owner).AddObject(FCanvas);
     TForm(Owner).AddObject(FFormImage);
     FFormImage.AnimateFloatWait('Position.X', ANewX, 0.2);
@@ -465,7 +467,7 @@ end;
 
 procedure TksSlideMenu.UpdateMenu;
 begin
-  FCanvas.RedrawMenu;
+  FCanvas.RedrawMenu(FMenuStyle = msOverlap);
 end;
 
 { TksSlideMenuItem }
@@ -507,7 +509,7 @@ begin
   FBitmap := TBitmap.Create;
   FItems := AItems;
   Position.X := -200;
-  Width := 200;//+TForm(FSlideMenu.Owner).Width;
+  Width := 200;
   Top := 0;
   FItemHeight := 44;
   FItemIndex := -1;
@@ -531,6 +533,8 @@ procedure TksSlideMenuCanvas.MouseDown(Button: TMouseButton; Shift: TShiftState;
 var
   AItem: TksSlideMenuItem;
 begin
+  if HitTest = False then
+    Exit;
   AItem := ItemAtPos(X, Y);
   if AItem <> nil then
   begin
@@ -543,89 +547,74 @@ begin
   end;
 end;
 
-procedure TksSlideMenuCanvas.RedrawMenu;
+procedure TksSlideMenuCanvas.RedrawMenu(AddBorder: Boolean);
 var
   ARect: TRectF;
   ICount: integer;
   ABmpRect: TRectF;
   AScale: single;
 begin
-  //AFormBmp := TBitmap.Create;
-  try
-    AScale := GetScreenScale;
-    FBitmap.BitmapScale := AScale;
+  AScale := GetScreenScale;
+  FBitmap.BitmapScale := AScale;
+  FBitmap.Width := Round(Width * AScale);
+  FBitmap.Height := Round(Height * AScale);
+  with FBitmap.Canvas do
+  begin
+    BeginScene;
+    Fill.Color := FBackgroundColor;
+    FillRect(ClipRect, 0, 0, [], 1);
+    ARect := RectF(0, 0, 200, FItemHeight);
+    Fill.Color := FBackgroundColor;
+    Stroke.Color := claBlack;
 
-    //AFormBmp.BitmapScale := AScale;
-    FBitmap.Width := Round(Width * AScale);
-    FBitmap.Height := Round(Height * AScale);
-
-    with FBitmap.Canvas do
+    for ICount := 0 to FItems.Count-1 do
     begin
-      BeginScene;
-
 
       Fill.Color := FBackgroundColor;
-      FillRect(ClipRect, 0, 0, [], 1);
+      if FItemIndex = ICount then
+        Fill.Color := FSelectedColor;
+      ARect.Left := 0;
+      FillRect(ARect, 0, 0, [], 1);
 
+      Fill.Color := claBlack;
 
-
-      ARect := RectF(0, 0, 200, FItemHeight);
-      Fill.Color := FBackgroundColor;
-      Stroke.Color := claBlack;
-
-      for ICount := 0 to FItems.Count-1 do
+      if AddBorder then
       begin
-
-        Fill.Color := FBackgroundColor;
-        if FItemIndex = ICount then
-          Fill.Color := FSelectedColor;
-        ARect.Left := 0;
-        FillRect(ARect, 0, 0, [], 1);
-
-        Fill.Color := claBlack;
-
         Stroke.Thickness := 1;
         if FSlideMenu.MenuPosition = mpLeft then
           DrawLine(PointF(200/AScale, 0), PointF(200/AScale, Height), 1)
         else
           DrawLine(PointF(0, 0), PointF(0, Height), 1);
-
-        if FItems[ICount].Image <> nil then
-        begin
-          ABmpRect := RectF(0, 0, 32, 32);
-          OffsetRect(ABmpRect, 4, ARect.Top+((FItemHeight-32) div 2));
-          DrawBitmap(FItems[ICount].Image, RectF(0,0,64,64), ABmpRect, 1);
-        end;
-        ARect.Left := 44;
-        Fill.Color := FUnselectedFontColor;
-        if FItemIndex = ICount then
-          Fill.Color := FSelectedFontColor;
-        Font.Assign(FItems[ICount].Font);
-        FillText(ARect, FItems[ICount].Text, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
-        OffsetRect(ARect, 0, FItemHeight);
       end;
-      //(FSlideMenu.Owner as TForm).PaintTo(Bitmap.Canvas);
-      //DrawBitmap(FFormBmp,
-      //           RectF(0, 0, FFormBmp.Width, fFormBmp.Height),
-      //           RectF(200, 0, FFormBmp.Width+200, FFormBmp.Height), 1);
-      EndScene;
+
+      if FItems[ICount].Image <> nil then
+      begin
+        ABmpRect := RectF(0, 0, 32, 32);
+        OffsetRect(ABmpRect, 4, ARect.Top+((FItemHeight-32) div 2));
+        DrawBitmap(FItems[ICount].Image, RectF(0,0,64,64), ABmpRect, 1);
+      end;
+      ARect.Left := 44;
+      Fill.Color := FUnselectedFontColor;
+      if FItemIndex = ICount then
+        Fill.Color := FSelectedFontColor;
+      Font.Assign(FItems[ICount].Font);
+      FillText(ARect, FItems[ICount].Text, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
+      OffsetRect(ARect, 0, FItemHeight);
     end;
-    Bitmap := FBitmap;
-  finally
-    //AFormBmp.Free;
+    EndScene;
   end;
+  Bitmap := FBitmap;
 end;
 
 procedure TksSlideMenuCanvas.SetItemHeight(const Value: integer);
 begin
   FItemHeight := Value;
-  RedrawMenu;
 end;
 
 procedure TksSlideMenuCanvas.SetItemIndex(const Value: integer);
 begin
   FItemIndex := Value;
-  RedrawMenu;
+  RedrawMenu(FSlideMenu.MenuStyle = msOverlap);
 end;
 
 

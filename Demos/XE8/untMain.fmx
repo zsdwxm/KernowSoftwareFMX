@@ -2,8 +2,8 @@ object Form6: TForm6
   Left = 0
   Top = 0
   Caption = 'Form6'
-  ClientHeight = 480
-  ClientWidth = 378
+  ClientHeight = 509
+  ClientWidth = 540
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
@@ -37,12 +37,13 @@ object Form6: TForm6
     Top = 136
   end
   object ToolBar1: TToolBar
-    Size.Width = 378.000000000000000000
+    Size.Width = 540.000000000000000000
     Size.Height = 40.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 3
     object btnLeftMenu: TButton
       Align = Left
+      AutoTranslate = False
       Size.Width = 81.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
@@ -53,7 +54,7 @@ object Form6: TForm6
     end
     object btnRightMenu: TButton
       Align = Right
-      Position.X = 297.000000000000000000
+      Position.X = 459.000000000000000000
       Size.Width = 81.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
@@ -64,7 +65,7 @@ object Form6: TForm6
     end
     object Label1: TLabel
       Align = Client
-      Size.Width = 216.000000000000000000
+      Size.Width = 378.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
       TextSettings.HorzAlign = Center
@@ -80,6 +81,27 @@ object Form6: TForm6
     Size.PlatformDefault = False
     TextSettings.Font.Size = 18.000000000000000000
     Text = 'SELECT AN MENU ITEM'
+  end
+  object RadioButton1: TRadioButton
+    Position.X = 32.000000000000000000
+    Position.Y = 216.000000000000000000
+    TabOrder = 9
+    Text = 'Push'
+    OnChange = RadioButton1Change
+  end
+  object RadioButton2: TRadioButton
+    Position.X = 32.000000000000000000
+    Position.Y = 248.000000000000000000
+    TabOrder = 8
+    Text = 'Reveal'
+    OnChange = RadioButton2Change
+  end
+  object RadioButton3: TRadioButton
+    Position.X = 32.000000000000000000
+    Position.Y = 280.000000000000000000
+    TabOrder = 7
+    Text = 'Overlap'
+    OnChange = RadioButton3Change
   end
   object ImageList1: TImageList
     Source = <

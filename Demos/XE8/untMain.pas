@@ -5,7 +5,8 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList;
+  FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList,
+  FMX.Effects, FMX.Objects;
 
 type
   TForm6 = class(TForm)
@@ -17,11 +18,17 @@ type
     Label1: TLabel;
     Label2: TLabel;
     ImageList1: TImageList;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
+    RadioButton3: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
     procedure SlideMenu1SelectMenuItemEvent(Sender: TObject; AId: string);
     procedure SlideMenu2SelectMenuItemEvent(Sender: TObject; AId: string);
+    procedure RadioButton1Change(Sender: TObject);
+    procedure RadioButton2Change(Sender: TObject);
+    procedure RadioButton3Change(Sender: TObject);
   private
     { Private declarations }
   public
@@ -59,6 +66,21 @@ begin
   SlideMenu2.AddMenuItem('ABOUT', 'About', 5);
 
   SlideMenu2.ItemIndex := 0;
+end;
+
+procedure TForm6.RadioButton1Change(Sender: TObject);
+begin
+  SlideMenu1.MenuStyle := msPush;
+end;
+
+procedure TForm6.RadioButton2Change(Sender: TObject);
+begin
+  SlideMenu1.MenuStyle := msReveal;
+end;
+
+procedure TForm6.RadioButton3Change(Sender: TObject);
+begin
+  SlideMenu1.MenuStyle := msOverlap;
 end;
 
 procedure TForm6.SlideMenu1SelectMenuItemEvent(Sender: TObject; AId: string);
