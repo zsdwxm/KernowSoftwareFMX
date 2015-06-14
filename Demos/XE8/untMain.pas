@@ -47,6 +47,7 @@ end;
 
 procedure TForm6.FormCreate(Sender: TObject);
 begin
+  SlideMenu1.MenuStyle := msPush;
   SlideMenu1.AddMenuItem('ABOUT', 'About Us', 0);
   SlideMenu1.AddMenuItem('RESERVE', 'Make a Booking', 1);
   SlideMenu1.AddMenuItem('MY BOOKINGS', 'My Bookings', 2);
