@@ -17,6 +17,7 @@ type
     btnRightMenu: TButton;
     Label1: TLabel;
     Label2: TLabel;
+    ImageList1: TImageList;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
