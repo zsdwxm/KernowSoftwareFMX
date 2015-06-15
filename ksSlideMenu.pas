@@ -50,10 +50,6 @@ type
 
   TksSlideMenuToolbar = class(TPersistent)
   private
-    //FOwner: TComponent;
-    //FRectangle: TRectangle;
-    //FThumbnail: TImage;
-    //FLabel: TLabel;
     FText: string;
     FBitmap: TBitmap;
     FVisible: Boolean;
@@ -110,7 +106,6 @@ type
     property UnselectedFontColor: TAlphaColor read FUnselectedFontColor write FUnselectedFontColor default claWhite;
     property ItemHeight: integer read FItemHeight write SetItemHeight default 40;
     property ItemIndex: integer read FItemIndex write SetItemIndex;
-    //property Toolbar: TksSlideMenuToolbar read FToolbar write FToolbar;
     // evnets..
     property OnSelectMenuItemEvent: TSelectMenuItemEvent read FOnSelectMenuItemEvent write FOnSelectMenuItemEvent;
   end;
@@ -229,7 +224,6 @@ function TksSlideMenu.AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlide
 begin
   Result := FItems.AddMenuItem(AId, AText, AImage);
   Result.Font.Assign(FFont);
-  //UpdateMenu;
 end;
 
 procedure TksSlideMenu.Clear;
@@ -301,6 +295,8 @@ var
   AForm: TForm;
   ABmp: TBitmap;
 begin
+  FFormImage.Visible := false;
+  FCanvas.Visible := False;
   ABmp := TBitmap.Create;
   try
     AScale := GetScreenScale;
@@ -322,6 +318,8 @@ begin
   finally
     ABmp.Free;
   end;
+  FFormImage.Visible := True;
+  FCanvas.Visible := True;
 end;
 
 procedure TksSlideMenu.GenerateShadows;
@@ -498,7 +496,7 @@ begin
   FCanvas.Width := 200;
   if FShowing then
   begin
-    ANewX := 0-200;//FCanvas.Width;
+    ANewX := 0-200;
     if FMenuPosition = mpRight then
       ANewX := (Owner as TForm).Width;
     FCanvas.AnimateFloatWait('Position.X', ANewX, 0.2);
@@ -516,7 +514,7 @@ begin
     if FMenuPosition = mpRight then
     begin
       FCanvas.Position.X := TForm(Owner).Width;
-      ANewX := (Owner as TForm).Width - 200;//FCanvas.Width;
+      ANewX := (Owner as TForm).Width - 200;
       FFormImage.Position.X := 0-FFormImage.Width;
 
     end;
@@ -568,7 +566,7 @@ begin
     TForm(Owner).AddObject(FFormImage);
     FFormImage.AddObject(AShadow);
 
-    FFormImage.AnimateFloatWait('Position.X', ANewX, 0.2);
+    FFormImage.AnimateFloatWait('Position.X', ANewX,  0.2);
   end;
 end;
 
@@ -636,7 +634,6 @@ end;
 destructor TksSlideMenuCanvas.Destroy;
 begin
   FBitmap.Free;
-  //FToolbar.Free;
   inherited;
 end;
 
@@ -656,6 +653,9 @@ begin
     Application.ProcessMessages;
     if Assigned(FOnSelectMenuItemEvent) then
       FOnSelectMenuItemEvent(FSlideMenu, AItem.Id);
+
+    //FSlideMenu.
+    FSlideMenu.GenerateFormImage;
     Sleep(200);
     FSlideMenu.ToggleMenu;
   end;
@@ -673,85 +673,74 @@ var
   ABmpToolbar: TBitmap;
 begin
   ABmp := fBitmap;
-  //ABmp := TBitmap.Create;
   try
     AScale := GetScreenScale;
     ABmp.BitmapScale := AScale;
     ABmp.Width := Round(Width * AScale);
     ABmp.Height := Round(Height * AScale);
-    //ABmp.Clear(FBackgroundColor);
     Application.ProcessMessages;
-    //with ABmp.Canvas do
-    //begin
-      ABmp.Canvas.BeginScene;
-      ABmp.Canvas.Fill.Color := FBackgroundColor;
-      ABmp.Canvas.FillRect(ClipRect, 0, 0, [], 1);
-      ARect := RectF(0, 0, 200, FItemHeight);
-      ABmp.Canvas.Fill.Color := FBackgroundColor;
-      ABmp.Canvas.Stroke.Color := claBlack;
+    ABmp.Canvas.BeginScene;
+    ABmp.Canvas.Fill.Color := FBackgroundColor;
+    ABmp.Canvas.FillRect(ClipRect, 0, 0, [], 1);
+    ARect := RectF(0, 0, 200, FItemHeight);
+    ABmp.Canvas.Fill.Color := FBackgroundColor;
+    ABmp.Canvas.Stroke.Color := claBlack;
 
-      // draw toolbar...
-      AToolbarRect := ARect;
-      AToolbarRect.Height := FSlideMenu.Toolbar.Height;
+    // draw toolbar...
+    AToolbarRect := ARect;
+    AToolbarRect.Height := FSlideMenu.Toolbar.Height;
 
-      if FSlideMenu.Toolbar.Visible then
+    if FSlideMenu.Toolbar.Visible then
+    begin
+      FSlideMenu.Toolbar.DrawToCanvas(ABmp.Canvas, AToolbarRect);
+      OffsetRect(ARect, 0, 44);
+    end;
+
+    for ICount := 0 to FItems.Count-1 do
+    begin
+
+      ABmp.Canvas.Fill.Color := FBackgroundColor;
+      if FItemIndex = ICount then
+        ABmp.Canvas.Fill.Color := FSelectedColor;
+
+      ARect.Left := 0;
+      ABmp.Canvas.FillRect(ARect, 0, 0, [], 1);
+
+      if FItemIndex <> ICount then
       begin
-        //ABmpToolbar := TBitmap.Create;
-        //try
-          FSlideMenu.Toolbar.DrawToCanvas(ABmp.Canvas, AToolbarRect);
-          OffsetRect(ARect, 0, 44);
-        //finally
-        //  ABmpToolbar.Free;
-        //end;
+        ABmp.Canvas.Fill.Color := FSlideMenu.Toolbar.Color;
+        ABmp.Canvas.FillRect(RectF(ARect.Left+32, ARect.Bottom-1, ARect.Right, ARect.Bottom), 0, 0, [], 1);
       end;
 
-      for ICount := 0 to FItems.Count-1 do
+      ABmp.Canvas.Fill.Color := claBlack;
+
+      if AddBorder then
       begin
+        ABmp.Canvas.Stroke.Thickness := 1;
+        // left/right menu border...
+        if FSlideMenu.MenuPosition = mpLeft then
+          ABmp.Canvas.DrawLine(PointF(200/AScale, 0), PointF(200/AScale, Height), 1)
+        else
+          ABmp.Canvas.DrawLine(PointF(0, 0), PointF(0, Height), 1);
+      end;
 
-        ABmp.Canvas.Fill.Color := FBackgroundColor;
-        if FItemIndex = ICount then
-          ABmp.Canvas.Fill.Color := FSelectedColor;
-
-        ARect.Left := 0;
-        ABmp.Canvas.FillRect(ARect, 0, 0, [], 1);
-
-        if FItemIndex <> ICount then
-        begin
-          ABmp.Canvas.Fill.Color := FSlideMenu.Toolbar.Color;
-          ABmp.Canvas.FillRect(RectF(ARect.Left+32, ARect.Bottom-1, ARect.Right, ARect.Bottom), 0, 0, [], 1);
-        end;
-
-        ABmp.Canvas.Fill.Color := claBlack;
-
-        if AddBorder then
-        begin
-          ABmp.Canvas.Stroke.Thickness := 1;
-          // left/right menu border...
-          if FSlideMenu.MenuPosition = mpLeft then
-            ABmp.Canvas.DrawLine(PointF(200/AScale, 0), PointF(200/AScale, Height), 1)
-          else
-            ABmp.Canvas.DrawLine(PointF(0, 0), PointF(0, Height), 1);
-        end;
-
-        if FItems[ICount].Image <> nil then
-        begin
-          ABmpRect := RectF(0, 0, 16, 16);
-          OffsetRect(ABmpRect, 8, ARect.Top+((FItemHeight-16) div 2));
-          ABmp.Canvas.DrawBitmap(FItems[ICount].Image, RectF(0,0,64,64), ABmpRect, 1);
-        end;
-        ARect.Left := 32;
-        ABmp.Canvas.Fill.Color := FUnselectedFontColor;
-        if FItemIndex = ICount then
-          ABmp.Canvas.Fill.Color := FSelectedFontColor;
-        ABmp.Canvas.Font.Assign(FItems[ICount].Font);
-        ABmp.Canvas.FillText(ARect, FItems[ICount].Text, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
-        OffsetRect(ARect, 0, FItemHeight);
-      //end;
+      if FItems[ICount].Image <> nil then
+      begin
+        ABmpRect := RectF(0, 0, 20, 20);
+        OffsetRect(ABmpRect, 6, ARect.Top+((FItemHeight-20) div 2));
+        ABmp.Canvas.DrawBitmap(FItems[ICount].Image, RectF(0,0,64,64), ABmpRect, 1);
+      end;
+      ARect.Left := 36;
+      ABmp.Canvas.Fill.Color := FUnselectedFontColor;
+      if FItemIndex = ICount then
+        ABmp.Canvas.Fill.Color := FSelectedFontColor;
+      ABmp.Canvas.Font.Assign(FItems[ICount].Font);
+      ABmp.Canvas.FillText(ARect, FItems[ICount].Text, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
+      OffsetRect(ARect, 0, FItemHeight);
     end;
     ABmp.Canvas.EndScene;
     Bitmap := ABmp;
   finally
-   // ABmp.Free;
   end;
 end;
 
@@ -819,29 +808,6 @@ begin
   ATextRect.Left := 50;
   ACanvas.Font.Assign(FFont);
   ACanvas.FillText(ATextRect, FText, False, 1, [], TTextAlign.Leading);
-
-    //(FOwner as TksSlideMenuCanvas).AddObject(FRectangle);
-  //FRectangle.Fill.Color := FHeaderColor;
-  //FThumbnail.Bitmap := FBitmap;
-
-  //Application.ProcessMessages;
-  {ABmp := TBitmap.Create;
-  try
-    ABmp.BitmapScale := GetScreenScale;
-    ABmp.Width := Round(ARect.Width*GetScreenScale);
-    ABmp.Height := Round(ARect.Height*GetScreenScale);
-    //ABmp.Canvas.BeginScene;
-    //FRectangle.Fill.Color := FHeaderColor;// TAlphaColor($FF323232);
-    //FRectangle.PaintTo(ABmp.Canvas, ARect);
-    //ABmp.Canvas.EndScene;
-
-    ACanvas.DrawBitmap(ABmp, RectF(0,0,ARect.Width,ABmp.Height), ARect, 1);
-  finally
-    ABmp.Free;
-  end; }
-
- //   FRectangle.PaintTo(ACanvas, ARect);
-
 end;
 
 procedure TksSlideMenuToolbar.SetBitmap(const Value: TBitmap);
