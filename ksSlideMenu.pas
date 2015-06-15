@@ -781,6 +781,7 @@ begin
     Result := FItems[AIndex];
 end;
 
+
 { TksSlideMenuToolbar }
 
 constructor TksSlideMenuToolbar.Create(AOwner: TComponent);
