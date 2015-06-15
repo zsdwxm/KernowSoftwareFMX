@@ -8,7 +8,8 @@ interface
 
 
 uses System.UITypes, FMX.Controls, FMX.Layouts, FMX.Objects, System.Classes,
-  FMX.Types, Generics.Collections, FMX.Graphics, System.UIConsts, FMX.Effects
+  FMX.Types, Generics.Collections, FMX.Graphics, System.UIConsts, FMX.Effects,
+  FMX.StdCtrls, System.Types
   {$IFDEF XE8_OR_NEWER}
   ,FMX.ImgList
   {$ENDIF}
@@ -46,6 +47,17 @@ type
     function AddMenuItem(AId, AText: string; AImage: TBitmap): TksSlideMenuItem;
   end;
 
+
+  TksSlideMenuToolbar = class
+  private
+    FLabel: TLabel;
+  public
+    constructor Create(AOwner: TComponent); virtual;
+    destructor Destroy; override;
+    procedure PaintTo(ACanvas: TCanvas; ARect: TRectF);
+  end;
+
+
   TksSlideMenuCanvas = class(TImage)
   strict private
     FBackgroundColor: TAlphaColor;
@@ -57,6 +69,7 @@ type
     FItems: TksSlideMenuItems;
     FItemHeight: integer;
     FItemIndex: integer;
+    FToolbar: TksSlideMenuToolbar;
     FOnSelectMenuItemEvent: TSelectMenuItemEvent;
     function ItemAtPos(x, y: single): TksSlideMenuItem;
 
@@ -78,6 +91,7 @@ type
     property UnselectedFontColor: TAlphaColor read FUnselectedFontColor write FUnselectedFontColor default claWhite;
     property ItemHeight: integer read FItemHeight write SetItemHeight default 40;
     property ItemIndex: integer read FItemIndex write SetItemIndex;
+    property Toolbar: TksSlideMenuToolbar read FToolbar;
     // evnets..
     property OnSelectMenuItemEvent: TSelectMenuItemEvent read FOnSelectMenuItemEvent write FOnSelectMenuItemEvent;
   end;
@@ -123,6 +137,8 @@ type
     procedure UnfadeBackground;
     procedure GenerateFormImage;
     procedure GenerateShadows;
+  private
+    function GetToolbar: TksSlideMenuToolbar;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -148,6 +164,7 @@ type
     property SelectedFontColor: TAlphaColor read GetSelectedFontColor write SetSelectedFontColor;
     property UnSelectedFontColor: TAlphaColor read GetUnSelectedFontColor write SetUnSelectedFontColor;
     property OnSelectMenuItemEvent: TSelectMenuItemEvent read FOnSelectMenuItemEvent write FOnSelectMenuItemEvent;
+    property Toolbar: TksSlideMenuToolbar read GetToolbar;
 
   end;
 
@@ -155,7 +172,7 @@ type
 
 implementation
 
-uses System.Types, FMX.Forms, FMX.Platform, SysUtils, FMX.Utils;
+uses FMX.Forms, FMX.Platform, SysUtils, FMX.Utils;
 
 procedure Register;
 begin
@@ -221,7 +238,6 @@ begin
   FMenuPosition := mpLeft;
   FMenuStyle := msOverlap;
   GenerateShadows;
-
 end;
 
 destructor TksSlideMenu.Destroy;
@@ -273,7 +289,6 @@ begin
     ABmp.Height := Round(AForm.Height * AScale);
     ABmp.Canvas.BeginScene;
     AForm.PaintTo(ABmp.Canvas);
-    //ABmp.Canvas.FillRect(RectF(0,0,ABmp.Width, ABmp.Height), 0,0,[],1);
     ABmp.Canvas.EndScene;
     ABmp.Canvas.BeginScene;
     ABmp.Canvas.Stroke.Color := claBlack;
@@ -361,6 +376,11 @@ end;
 function TksSlideMenu.GetSelectedFontColor: TAlphaColor;
 begin
   Result := FCanvas.SelectedFontColor;
+end;
+
+function TksSlideMenu.GetToolbar: TksSlideMenuToolbar;
+begin
+  Result := FCanvas.Toolbar;
 end;
 
 function TksSlideMenu.GetUnSelectedFontColor: TAlphaColor;
@@ -580,6 +600,7 @@ constructor TksSlideMenuCanvas.Create(AOwner: TComponent; AItems: TksSlideMenuIt
 begin
   inherited Create(AOwner);
   FSlideMenu := (AOwner as TksSlideMenu);
+  FToolbar := TksSlideMenuToolbar.Create(Self);
   FBitmap := TBitmap.Create;
   FItems := AItems;
   Position.X := -200;
@@ -598,6 +619,7 @@ end;
 destructor TksSlideMenuCanvas.Destroy;
 begin
   FBitmap.Free;
+  FToolbar.Free;
   inherited;
 end;
 
@@ -627,6 +649,7 @@ var
   ICount: integer;
   ABmpRect: TRectF;
   AScale: single;
+  AToolbarRect: TRectF;
 begin
   AScale := GetScreenScale;
   FBitmap.BitmapScale := AScale;
@@ -641,7 +664,20 @@ begin
     Fill.Color := FBackgroundColor;
     Stroke.Color := claBlack;
 
-    for ICount := 0 to FItems.Count-1 do
+    // draw toolbar...
+    AToolbarRect := ARect;
+    AToolbarRect.Height := FToolbar.FLabel.Height;
+
+    FToolbar.PaintTo(FBitmap.Canvas, AToolbarRect);
+
+
+    {$IFDEF IOS}
+    OffsetRect(ARect, 0, 44);
+    {$ELSE}
+    OffsetRect(ARect, 0, AToolbarRect.Height);
+    {$ENDIF}
+    // draw items..
+    {for ICount := 0 to FItems.Count-1 do
     begin
 
       Fill.Color := FBackgroundColor;
@@ -674,7 +710,7 @@ begin
       Font.Assign(FItems[ICount].Font);
       FillText(ARect, FItems[ICount].Text, False, 1, [], TTextAlign.Leading, TTextAlign.Center);
       OffsetRect(ARect, 0, FItemHeight);
-    end;
+    end;   }
     EndScene;
   end;
   Bitmap := FBitmap;
@@ -700,6 +736,45 @@ begin
   AIndex := Trunc(y / FItemHeight);
   if AIndex < FItems.Count then
     Result := FItems[AIndex];
+end;
+
+{ TksSlideMenuToolbar }
+
+constructor TksSlideMenuToolbar.Create(AOwner: TComponent);
+begin
+  FLabel := TLabel.Create(Application.MainForm);
+  FLabel.Font.Size := 100;
+  FLabel.Text := '12345';
+  FLabel.Width := 300;
+  FLabel.Height := 300;
+  FLabel.StyledSettings := [];
+  FLabel.Text := 'HEADER';
+end;
+
+destructor TksSlideMenuToolbar.Destroy;
+begin
+  if FLabel.Parent = nil then
+    FLabel.Free;
+  inherited;
+end;
+
+procedure TksSlideMenuToolbar.PaintTo(ACanvas: TCanvas; ARect: TRectF);
+begin
+  {lbl := TLabel.Create(Application.MainForm);
+  lbl.Font.Size := 100;
+  lbl.Text := '12345';
+  lbl.Width := 300;
+  lbl.Height := 300;
+  lbl.StyledSettings := [];
+  Application.MainForm.AddObject(lbl); }
+ // FLabel.PaintTo(ACanvas, ARect);
+  //Application.MainForm.AddObject(FLabel);
+
+  ACanvas.FillText(ARect, 'TEST', False, 1, [], TTextAlign.Leading);
+
+  FLabel.PaintTo(ACanvas, ARect);
+
+
 end;
 
 end.

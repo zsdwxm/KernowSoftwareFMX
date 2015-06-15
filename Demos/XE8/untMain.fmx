@@ -96,6 +96,23 @@ object Form6: TForm6
     Left = 240
     Top = 128
   end
+  object Button1: TButton
+    Position.X = 48.000000000000000000
+    Position.Y = 264.000000000000000000
+    TabOrder = 8
+    Text = 'Button1'
+    OnClick = Button1Click
+  end
+  object Image1: TImage
+    MultiResBitmap = <
+      item
+      end>
+    Position.X = 176.000000000000000000
+    Position.Y = 256.000000000000000000
+    Size.Width = 241.000000000000000000
+    Size.Height = 169.000000000000000000
+    Size.PlatformDefault = False
+  end
   object ImageList1: TImageList
     Source = <
       item
