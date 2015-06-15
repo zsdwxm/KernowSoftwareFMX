@@ -31,7 +31,6 @@ requires
   fmx;
 
 contains
-  ksSlideMenu in 'ksSlideMenu.pas',
-  ksFormTransition in 'ksFormTransition.pas';
+  ksSlideMenu in 'ksSlideMenu.pas';
 
 end.

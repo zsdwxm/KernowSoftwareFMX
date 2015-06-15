@@ -6,11 +6,10 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList,
-  FMX.Effects, FMX.Objects, ksFormTransition;
+  FMX.Effects, FMX.Objects;
 
 type
   TForm6 = class(TForm)
-    SlideMenu1: TksSlideMenu;
     SlideMenu2: TksSlideMenu;
     ToolBar1: TToolBar;
     btnLeftMenu: TButton;
@@ -18,9 +17,7 @@ type
     Label2: TLabel;
     ImageList1: TImageList;
     btnRightMenu: TButton;
-    ksFormTransition1: TksFormTransition;
-    Button1: TButton;
-    Image1: TImage;
+    SlideMenu1: TksSlideMenu;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
@@ -29,7 +26,6 @@ type
     procedure RadioButton1Change(Sender: TObject);
     procedure RadioButton2Change(Sender: TObject);
     procedure RadioButton3Change(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -41,7 +37,18 @@ var
 
 implementation
 
+uses FMX.Platform;
+
 {$R *.fmx}
+
+function GetScreenScale: Single;
+var
+   Service : IFMXScreenService;
+begin
+   Service := IFMXScreenService(
+      TPlatformServices.Current.GetPlatformService(IFMXScreenService));
+   Result := Service .GetScreenScale;
+end;
 
 procedure TForm6.btnLeftMenuClick(Sender: TObject);
 begin
@@ -51,37 +58,6 @@ end;
 procedure TForm6.btnRightMenuClick(Sender: TObject);
 begin
   SlideMenu2.ToggleMenu;
-end;
-
-procedure TForm6.Button1Click(Sender: TObject);
-var
-  lbl: TLabel;
-  b: TBitmap;
-begin
-  lbl := TLabel.Create(Self);
-  lbl.Font.Size := 16;
-  lbl.Text := '12345';
-  lbl.Width := 300;
-  lbl.Height := 20;
-
-  //lbl.StyledSettings := [Family,Style,FontColor];
-  AddObject(lbl);
-
-  Application.ProcessMessages;
-
-
-  //exit;
-
-  b := image1.Bitmap;// TBitmap.Create;
-  b.SetSize(100, 100);
-  b.Canvas.BeginScene;
-  //b.Canvas.FillText(RectF(0, 0, 30, 30), '123', True, 1, [], TTextAlign.Leading);
-  lbl.PaintTo(b.Canvas, RectF(0, 0, 100,  100), self);
-  //SlideMenu1.Toolbar.PaintTo(Canvas, RectF(100, 100, 20, 144));
-  b.Canvas.EndScene;
-  Image1.Bitmap := b;
-  Image1.Repaint;
-  //b.Free;
 end;
 
 procedure TForm6.FormCreate(Sender: TObject);
@@ -94,7 +70,7 @@ begin
   SlideMenu1.AddMenuItem('CONTACT', 'Contact Us', 4);
   SlideMenu1.ItemIndex := 0;
 
-  SlideMenu2.AddMenuItem('ANOTHER', 'Another Menu', 0);
+  SlideMenu2.AddMenuItem('ANOTHER', 'Another option', 0);
   SlideMenu2.AddMenuItem('ABOUT', 'About', 5);
 
   SlideMenu2.ItemIndex := 0;
