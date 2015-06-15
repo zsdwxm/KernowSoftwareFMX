@@ -54,6 +54,14 @@ object Form6: TForm6
       Text = 'Left Menu'
       OnClick = btnLeftMenuClick
     end
+    object Label1: TLabel
+      Align = Client
+      Size.Width = 378.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'ksSlideMenu Demo'
+    end
     object btnRightMenu: TButton
       Align = Right
       Position.X = 459.000000000000000000
@@ -64,14 +72,6 @@ object Form6: TForm6
       TabOrder = 0
       Text = 'Right Menu'
       OnClick = btnRightMenuClick
-    end
-    object Label1: TLabel
-      Align = Client
-      Size.Width = 378.000000000000000000
-      Size.Height = 40.000000000000000000
-      Size.PlatformDefault = False
-      TextSettings.HorzAlign = Center
-      Text = 'ksSlideMenu Demo'
     end
   end
   object Label2: TLabel
@@ -87,6 +87,7 @@ object Form6: TForm6
   object ImageList1: TImageList
     Source = <
       item
+        MultiResBitmap.LoadSize = 2
         MultiResBitmap = <
           item
             Scale = 4.000000000000000000
@@ -139,6 +140,7 @@ object Form6: TForm6
         Name = 'application'
       end
       item
+        MultiResBitmap.LoadSize = 2
         MultiResBitmap = <
           item
             Scale = 4.000000000000000000
@@ -195,6 +197,7 @@ object Form6: TForm6
         Name = 'documents'
       end
       item
+        MultiResBitmap.LoadSize = 2
         MultiResBitmap = <
           item
             Scale = 4.000000000000000000
@@ -265,6 +268,7 @@ object Form6: TForm6
         Name = 'home'
       end
       item
+        MultiResBitmap.LoadSize = 2
         MultiResBitmap = <
           item
             Scale = 4.000000000000000000
@@ -328,6 +332,7 @@ object Form6: TForm6
         Name = 'search'
       end
       item
+        MultiResBitmap.LoadSize = 2
         MultiResBitmap = <
           item
             Scale = 4.000000000000000000
@@ -405,5 +410,9 @@ object Form6: TForm6
       end>
     Left = 56
     Top = 192
+  end
+  object ksFormTransition1: TksFormTransition
+    Left = 240
+    Top = 128
   end
 end

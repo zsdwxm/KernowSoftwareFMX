@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList,
-  FMX.Effects, FMX.Objects, Vcl.Graphics;
+  FMX.Effects, FMX.Objects, Vcl.Graphics, ksFormTransition;
 
 type
   TForm6 = class(TForm)
@@ -14,10 +14,11 @@ type
     SlideMenu2: TksSlideMenu;
     ToolBar1: TToolBar;
     btnLeftMenu: TButton;
-    btnRightMenu: TButton;
     Label1: TLabel;
     Label2: TLabel;
     ImageList1: TImageList;
+    btnRightMenu: TButton;
+    ksFormTransition1: TksFormTransition;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
