@@ -178,7 +178,7 @@ type
     property TopPadding: integer read FTopPadding write SetTopPadding default 0;
     property BackgroundColor: TAlphaColor read GetBackgroundColor write SetBackgroundColor;
     property MenuPosition: TksMenuPosition read FMenuPosition write FMenuPosition default mpLeft;
-    property MenuStyle: TKsMenuStyle read FMenuStyle write FMenuStyle default msOverlap;
+    property MenuStyle: TKsMenuStyle read FMenuStyle write FMenuStyle default msReveal;
     property SelectedColor: TAlphaColor read GetSelectedColor write SetSelectedColor;
     property SelectedFontColor: TAlphaColor read GetSelectedFontColor write SetSelectedFontColor;
     property UnSelectedFontColor: TAlphaColor read GetUnSelectedFontColor write SetUnSelectedFontColor;
@@ -256,7 +256,7 @@ begin
   FFormImage := TImage.Create(Self);
   FFormImage.OnClick := DoBackgroundClick;
   FMenuPosition := mpLeft;
-  FMenuStyle := msOverlap;
+  FMenuStyle := msReveal;
   GenerateShadows;
 end;
 
