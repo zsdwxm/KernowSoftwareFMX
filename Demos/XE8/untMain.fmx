@@ -46,24 +46,31 @@ object Form6: TForm6
     object btnLeftMenu: TButton
       Align = Left
       AutoTranslate = False
+      CanFocus = False
+      StyledSettings = [Family, Style, FontColor]
       Size.Width = 81.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
       StyleLookup = 'toolbutton'
       TabOrder = 1
       Text = 'Left Menu'
+      TextSettings.Font.Size = 11.000000000000000000
       OnClick = btnLeftMenuClick
     end
     object Label1: TLabel
       Align = Client
+      StyledSettings = [Family, Style, FontColor]
       Size.Width = 378.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.Font.Size = 11.000000000000000000
       TextSettings.HorzAlign = Center
       Text = 'ksSlideMenu Demo'
     end
     object btnRightMenu: TButton
       Align = Right
+      CanFocus = False
+      StyledSettings = [Family, Style, FontColor]
       Position.X = 459.000000000000000000
       Size.Width = 81.000000000000000000
       Size.Height = 40.000000000000000000
@@ -71,6 +78,7 @@ object Form6: TForm6
       StyleLookup = 'toolbutton'
       TabOrder = 0
       Text = 'Right Menu'
+      TextSettings.Font.Size = 11.000000000000000000
       OnClick = btnRightMenuClick
     end
   end
@@ -81,8 +89,12 @@ object Form6: TForm6
     Size.Width = 289.000000000000000000
     Size.Height = 41.000000000000000000
     Size.PlatformDefault = False
-    TextSettings.Font.Size = 18.000000000000000000
+    TextSettings.Font.Size = 14.000000000000000000
     Text = 'SELECT AN MENU ITEM'
+  end
+  object ksFormTransition1: TksFormTransition
+    Left = 240
+    Top = 128
   end
   object ImageList1: TImageList
     Source = <
@@ -410,9 +422,5 @@ object Form6: TForm6
       end>
     Left = 56
     Top = 192
-  end
-  object ksFormTransition1: TksFormTransition
-    Left = 240
-    Top = 128
   end
 end

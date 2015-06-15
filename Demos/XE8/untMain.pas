@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, ksSlideMenu, System.ImageList, FMX.ImgList,
-  FMX.Effects, FMX.Objects, Vcl.Graphics, ksFormTransition;
+  FMX.Effects, FMX.Objects, ksFormTransition;
 
 type
   TForm6 = class(TForm)

@@ -103,3 +103,12 @@ Finalbuilder/build_test.fbl7
 KernowSoftwareFMX.rc
 *.fbz7
 KernowSoftwareFMX.res
+Demos/XE8/iOSDevice32/Release/ksFormTransition.o
+Demos/XE8/iOSDevice32/Release/ksMenuDemo
+Demos/XE8/iOSDevice32/Release/ksMenuDemo.entitlements
+Demos/XE8/iOSDevice32/Release/ksMenuDemo.info.plist
+Demos/XE8/iOSDevice32/Release/ksMenuDemo.ipa
+Demos/XE8/iOSDevice32/Release/ksMenuDemo.o
+Demos/XE8/iOSDevice32/Release/ResourceRules.plist
+Demos/XE8/iOSDevice32/Release/ksSlideMenu.o
+Demos/XE8/iOSDevice32/Release/untMain.o

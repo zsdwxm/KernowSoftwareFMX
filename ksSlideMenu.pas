@@ -268,6 +268,7 @@ begin
   try
     AScale := GetScreenScale;
     AForm := (Owner as TForm);
+    ABmp.BitmapScale := AScale;
     ABmp.Width := Round(AForm.Width * AScale);
     ABmp.Height := Round(AForm.Height * AScale);
     ABmp.Canvas.BeginScene;

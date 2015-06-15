@@ -20,6 +20,8 @@ type
   TksFormTransitionType = (ksSlideIn, ksSlideOut, ksFadeIn, ksFadeOut);
   TksFormTransitionDirection = (ksLeftToRight, ksRightToLeft, ksTopToBottom, ksBottomToTop);
 
+  //TksFormTransition =
+
   [ComponentPlatformsAttribute(pidWin32 or pidWin64 or  pidiOSDevice)]
   TksFormTransition = class(TFmxObject)
   strict private
