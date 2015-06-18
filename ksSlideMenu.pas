@@ -651,12 +651,14 @@ begin
     ItemIndex := AItem.Index;
     RedrawMenu(FSlideMenu.MenuStyle = msOverlap);
     Application.ProcessMessages;
+
     if Assigned(FOnSelectMenuItemEvent) then
       FOnSelectMenuItemEvent(FSlideMenu, AItem.Id);
 
     //FSlideMenu.
     FSlideMenu.GenerateFormImage;
-    Sleep(200);
+    Application.ProcessMessages;
+    Sleep(100);
     FSlideMenu.ToggleMenu;
   end;
 
