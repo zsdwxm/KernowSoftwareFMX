@@ -114,3 +114,4 @@ Demos/XE8/iOSDevice32/Release/ksSlideMenu.o
 Demos/XE8/iOSDevice32/Release/untMain.o
 *.o
 Demos/Entitlement.TemplateiOS.xml
+*.stat
