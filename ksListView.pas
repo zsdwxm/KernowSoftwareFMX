@@ -10,6 +10,8 @@ uses
 type
   TksListView = class;
 
+  //TksListItem
+
   TksListItemText = class(TListItemText)
   private
     FCached: TBitmap;
@@ -149,14 +151,10 @@ var
 begin
   AHeader := Items.Add;
   AHeader.Text := ATitle;
-  ItemAppearanceObjects.HeaderObjects.Text.Visible := False;
   AHeader.Purpose := TListItemPurpose.Header;
-  Canvas.Font.Size := 12;
-  Canvas.TextColor := claDimgray;
-  Canvas.TextOut(AHeader, ATitle, 0, 0, 200);
-  if AHeader.Objects.AccessoryObject <> nil then
-
-    AHeader.Objects.AccessoryObject.Visible := False;
+  AHeader.Height := 40;
+  //ItemAppearanceObjects.HeaderObjects.Text;
+  //AHeader.Objects.AccessoryObject.Visible := False;
 end;
 
 procedure TksListView.AddItem(AName, AValue: string; const AClickId: string = '');
@@ -175,7 +173,7 @@ begin
                  AName,
                  4,
                  0,
-                 150);
+                 Width);
 
   Canvas.TextColor := claDodgerblue;
   with Canvas.TextOut(AItem, AValue, 4, 0, 160, TTextTrimming.Character) do
@@ -287,6 +285,7 @@ begin
   ALbl.Width := AWidth;
   if X <> 0 then ALbl.PlaceOffset.X := X;
   if Y <> 0 then ALbl.PlaceOffset.Y := Y;
+
   Result := ALbl;
 
 end;
