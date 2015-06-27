@@ -8,19 +8,28 @@ uses
   FMX.TextLayout;
 
 type
+  TksListItemImage = class;
+
+  TksClickImageEvent = procedure(Sender: TObject; x, y: single; AImage: TksListItemImage) of object;
+
   TksListView = class;
 
-  //TksListItem
+  TksListItemImage = class(TListItemImage)
+  private
+    FTouchTargetExpansion: TBounds;
+  public
+    constructor Create(const AOwner: TListItem); override;
+    destructor Destroy; override;
+    property TouchTargetExpansion: TBounds read FTouchTargetExpansion;
+  end;
+
 
   TksListItemText = class(TListItemText)
   private
     FCached: TBitmap;
     FTextLayout: TTextLayout;
     FItemRect: TRectF;
-
     procedure Cache(ARect: TRectF); overload;
-  protected
-
   public
     constructor Create(const AOwner: TListItem); override;
     destructor Destroy; override;
@@ -47,10 +56,11 @@ type
   TksListView = class(TListView)
   private
     FCanvas: TksListViewCanvas;
+    FOnClickImage: TksClickImageEvent;
     procedure DoItemClick(const AItem: TListViewItem);
     { Private declarations }
   protected
-
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     { Protected declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -62,6 +72,7 @@ type
     property Canvas: TksListViewCanvas read FCanvas;
     { Public declarations }
   published
+    property OnClickImage: TksClickImageEvent read FOnClickImage write FOnClickImage;
     { Published declarations }
   end;
 
@@ -239,6 +250,12 @@ begin
   CacheObjects;
 end;
 
+procedure TksListView.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Single);
+begin
+  inherited;
+
+end;
 
 constructor TksListViewCanvas.Create(AListView: TksListView);
 begin
@@ -256,18 +273,13 @@ end;
 function TksListViewCanvas.DrawBitmap(AItem: TListViewItem; ABmp: TBitmap; X, Y,
   AWidth, AHeight: Extended): TListItemImage;
 begin
-  //Result := AItem.Objects.FindObject(ID) as TListItemImage;
-  //if Result = nil then
-  //begin
-    Result := TListItemImage.Create(AItem);
-    //Result.Name := ID;
-    Result.VertAlign := TListItemAlign.Center;
-    Result.PlaceOffset.X := X;
-    Result.PlaceOffset.Y := Y;
-    Result.Width := AWidth;
-    Result.Height := AHeight;
-    Result.Bitmap := ABmp;
-  //end;
+  Result := TksListItemImage.Create(AItem);
+  Result.VertAlign := TListItemAlign.Center;
+  Result.PlaceOffset.X := X;
+  Result.PlaceOffset.Y := Y;
+  Result.Width := AWidth;
+  Result.Height := AHeight;
+  Result.Bitmap := ABmp;
 end;
 
 function TksListViewCanvas.TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
@@ -285,9 +297,21 @@ begin
   ALbl.Width := AWidth;
   if X <> 0 then ALbl.PlaceOffset.X := X;
   if Y <> 0 then ALbl.PlaceOffset.Y := Y;
-
   Result := ALbl;
+end;
 
+{ TksListItemImage }
+
+constructor TksListItemImage.Create(const AOwner: TListItem);
+begin
+  inherited;
+  FTouchTargetExpansion := TBounds.Create(RectF(4,4,4,4));
+end;
+
+destructor TksListItemImage.Destroy;
+begin
+  FTouchTargetExpansion.Free;
+  inherited;
 end;
 
 end.

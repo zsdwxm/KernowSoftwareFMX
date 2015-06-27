@@ -87,20 +87,14 @@ type
     FItemIndex: integer;
     FOnSelectMenuItemEvent: TSelectMenuItemEvent;
     FAfterSelectMenuItemEvent: TSelectMenuItemEvent;
-
     function ItemAtPos(x, y: single): TksSlideMenuItem;
-
     procedure SetItemHeight(const Value: integer);
-
     procedure SetItemIndex(const Value: integer);
-
   protected
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
-
   public
     constructor Create(AOwner: TComponent; AItems: TksSlideMenuItems);
     destructor Destroy; override;
-
     procedure RedrawMenu(AddBorder: Boolean);
     property BackgroundColor: TAlphaColor read FBackgroundColor write FBackgroundColor default claNavy;
     property SelectedColor: TAlphaColor read FSelectedColor write FSelectedColor default claRed;
