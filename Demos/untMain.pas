@@ -25,11 +25,8 @@ type
     imgAbout: TImage;
     TabControl1: TTabControl;
     tabAbout: TTabItem;
-    tabReserve: TTabItem;
-    tabMyBookings: TTabItem;
-    tabMenu: TTabItem;
     tabContact: TTabItem;
-    lvAbout: TksListView;
+    ksListView1: TksListView;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
@@ -48,6 +45,8 @@ var
 
 implementation
 
+uses System.UIConsts;
+
 {$R *.fmx}
 
 procedure TForm6.btnLeftMenuClick(Sender: TObject);
@@ -65,17 +64,19 @@ var
   ICount: integer;
   AItem: TListViewItem;
 begin
-  lvAbout.Items.BeginUpdate;
+  ksListView1.Items.BeginUpdate;
   try
     for ICount := 0 to 100 do
     begin
-      AItem := lvAbout.Items.Add;
-      lvAbout.Canvas.DrawBitmap(AItem, imgHome.Bitmap, 0, 0, 24, 24);
-      lvAbout.Canvas.TextOut(AItem, 'ABOUT', 0, 0, 0);
-      lvAbout.Canvas.TextOutRight(AItem, 'cached scrolling :-)', 0, 0, 0);
+      AItem := ksListView1.Items.Add;
+      ksListView1.Canvas.DrawBitmap(AItem, imgHome.Bitmap, 0, 0, 24, 24);
+      ksListView1.Canvas.TextColor := claDimgray;
+      ksListView1.Canvas.TextOut(AItem, 'Line '+InttoStr(ICount), 30, 0, 0);
+      ksListView1.Canvas.TextColor := claDodgerblue;
+      ksListView1.Canvas.TextOutRight(AItem, 'cached scrolling :-)', 0, 0, 0);
     end;
   finally
-    lvAbout.Items.EndUpdate;
+    ksListView1.Items.EndUpdate;
   end;
 end;
 
@@ -89,10 +90,7 @@ procedure TForm6.FormCreate(Sender: TObject);
 begin
   TabControl1.TabPosition := TTabPosition.None;
 
-  SlideMenu1.AddMenuItem('ABOUT', 'About Us', imgHome.Bitmap);
-  SlideMenu1.AddMenuItem('RESERVE', 'Make a Booking', imgSearch.Bitmap);
-  SlideMenu1.AddMenuItem('MY BOOKINGS', 'My Bookings', imgCalendar.Bitmap);
-  SlideMenu1.AddMenuItem('MENU', 'View Menus', imgMenu.Bitmap);
+  SlideMenu1.AddMenuItem('LISTVIEW', 'Cached ListView', imgHome.Bitmap);
   SlideMenu1.AddMenuItem('CONTACT', 'Contact Us', imgContact.Bitmap);
   SlideMenu1.ItemIndex := 0;
 
@@ -105,12 +103,8 @@ end;
 
 procedure TForm6.SlideMenu1SelectMenuItemEvent(Sender: TObject; AId: string);
 begin
-  if AId = 'ABOUT' then TabControl1.ActiveTab := tabAbout;
-  if AId = 'RESERVE' then TabControl1.ActiveTab := tabReserve;
-  if AId = 'MY BOOKINGS' then TabControl1.ActiveTab := tabMyBookings;
-  if AId = 'MENU' then TabControl1.ActiveTab := tabMenu;
+  if AId = 'LISTVIEW' then TabControl1.ActiveTab := tabAbout;
   if AId = 'CONTACT' then TabControl1.ActiveTab := tabContact;
-
 end;
 
 end.

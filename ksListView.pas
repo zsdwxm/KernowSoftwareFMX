@@ -43,6 +43,7 @@ type
     FListView: TksListView;
     FFont: TFont;
     FTextColor: TAlphaColor;
+    function GetTextWidth(AText: string): Single;
   public
     constructor Create(AListView: TksListView);
     destructor Destroy; override;
@@ -167,8 +168,6 @@ begin
   AHeader.Text := ATitle;
   AHeader.Purpose := TListItemPurpose.Header;
   AHeader.Height := 40;
-  //ItemAppearanceObjects.HeaderObjects.Text;
-  //AHeader.Objects.AccessoryObject.Visible := False;
 end;
 
 procedure TksListView.AddItem(AName, AValue: string; const AClickId: string = '');
@@ -181,8 +180,6 @@ begin
 
   ItemAppearanceObjects.ItemObjects.Text.Visible := False;
   Canvas.TextColor := claDimgray;
-  //Canvas.TextOut(AItem, FormatDateTime('dd-mmm', ATran.Date), 4, 0, 50);
-
   Canvas.TextOut(AItem,
                  AName,
                  4,
@@ -197,13 +194,6 @@ begin
     Align := TListItemAlign.Trailing;
   end;
   AItem.Objects.AccessoryObject.Visible := AClickId <> '';
-
-  {Canvas.TextOut(AItem,
-                 AValue,
-                 Round(Width - ItemAppearanceObjects.ItemObjects.Detail.PlaceOffset.X),
-                 0,
-                 Round(ItemAppearanceObjects.ItemObjects.Detail.Width),
-                 TTextTrimming.Character);//.Align := TListItemAlign.Trailing;   }
 end;
 
 procedure TksListView.CacheObjects;
@@ -313,6 +303,19 @@ begin
   //TKsListView(AItem.Parent).ItemAppearanceObjects.ItemObjects.Text
 end;
 
+function TksListViewCanvas.GetTextWidth(AText: string): Single;
+var
+  ABmp: TBitmap;
+begin
+  ABmp := TBitmap.Create;
+  try
+    ABmp.Canvas.Font.Assign(FFont);
+    Result := ABmp.Canvas.TextWidth(AText);
+  finally
+    ABmp.Free;
+  end;
+end;
+
 function TksListViewCanvas.TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
 var
   ALbl: TksListItemText;
@@ -325,6 +328,8 @@ begin
   ALbl.TextColor := FTextColor;
   ALbl.Font.Assign(FFont);
   ALbl.Trimming := ATrimming;
+  if AWidth = 0 then
+    AWidth := GetTextWidth(AText);
   ALbl.Width := AWidth;
   if X <> 0 then ALbl.PlaceOffset.X := X;
   if Y <> 0 then ALbl.PlaceOffset.Y := Y;
