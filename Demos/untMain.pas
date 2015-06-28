@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, ksSlideMenu, FMX.Layouts, FMX.Objects,
-  FMX.TabControl, FMX.ListBox;
+  FMX.TabControl, FMX.ListBox, FMX.ListView.Types, FMX.ListView, ksListView;
 
 type
   TForm6 = class(TForm)
@@ -29,17 +29,16 @@ type
     tabMyBookings: TTabItem;
     tabMenu: TTabItem;
     tabContact: TTabItem;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
+    lvAbout: TksListView;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
     procedure SlideMenu1SelectMenuItemEvent(Sender: TObject; AId: string);
   private
+    procedure BuildAboutListView;
     { Private declarations }
+  protected
+    procedure DoShow; override;
   public
     { Public declarations }
   end;
@@ -59,6 +58,31 @@ end;
 procedure TForm6.btnRightMenuClick(Sender: TObject);
 begin
   SlideMenu2.ToggleMenu;
+end;
+
+procedure TForm6.BuildAboutListView;
+var
+  ICount: integer;
+  AItem: TListViewItem;
+begin
+  lvAbout.Items.BeginUpdate;
+  try
+    for ICount := 0 to 100 do
+    begin
+      AItem := lvAbout.Items.Add;
+      lvAbout.Canvas.DrawBitmap(AItem, imgHome.Bitmap, 0, 0, 24, 24);
+      lvAbout.Canvas.TextOut(AItem, 'ABOUT', 0, 0, 0);
+      lvAbout.Canvas.TextOutRight(AItem, 'cached scrolling :-)', 0, 0, 0);
+    end;
+  finally
+    lvAbout.Items.EndUpdate;
+  end;
+end;
+
+procedure TForm6.DoShow;
+begin
+  inherited;
+  BuildAboutListView;
 end;
 
 procedure TForm6.FormCreate(Sender: TObject);

@@ -10,7 +10,7 @@ uses
 type
   TksListItemImage = class;
 
-  TksClickImageEvent = procedure(Sender: TObject; x, y: single; AImage: TksListItemImage) of object;
+  TksClickImageEvent = procedure(Sender: TObject; x, y: single; AImage: TksListItemImage; var AHandled: Boolean) of object;
 
   TksListView = class;
 
@@ -47,6 +47,7 @@ type
     constructor Create(AListView: TksListView);
     destructor Destroy; override;
     function TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
+    function TextOutRight(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
     function DrawBitmap(AItem: TListViewItem; ABmp: TBitmap; X, Y, AWidth, AHeight: Extended): TListItemImage;
     property Font: TFont read FFont;
     property TextColor: TAlphaColor read FTextColor write FTextColor;
@@ -57,10 +58,12 @@ type
   private
     FCanvas: TksListViewCanvas;
     FOnClickImage: TksClickImageEvent;
-    procedure DoItemClick(const AItem: TListViewItem);
+    FMouseDownPos: TPointF;
     { Private declarations }
   protected
+    procedure DoItemClick(const AItem: TListViewItem); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Single); override;
     { Protected declarations }
   public
     constructor Create(AOwner: TComponent); override;
@@ -80,7 +83,7 @@ procedure Register;
 
 implementation
 
-uses SysUtils, FMX.Platform, System.UIConsts, FMX.Forms;
+uses SysUtils, FMX.Platform, System.UIConsts, FMX.Forms, FMX.Dialogs;
 
 procedure Register;
 begin
@@ -217,8 +220,8 @@ begin
     for ICount2 := 0 to AItem.Objects.Count-1 do
     begin
       AObj := AItem.Objects[ICount2];
-
-
+      if AItem.Text = '' then
+        AItem.Text := '1';
       if AObj is TksListItemText then
         (AObj as TksListItemText).UpdateCache;
     end;
@@ -237,11 +240,27 @@ begin
   inherited;
 end;
 procedure TksListView.DoItemClick(const AItem: TListViewItem);
+var
+  ICount: integer;
+  AObj: TListItemObject;
+  AHandled: Boolean;
 begin
-  inherited;
-  Application.ProcessMessages;
-  Sleep(100);
-  ItemIndex := -1;
+  AHandled := False;
+  for ICount := 0 to AItem.Objects.Count-1 do
+  begin
+    AObj := AItem.Objects[ICount];
+    if (AObj is TksListItemImage)  then
+    begin
+      if (FMouseDownPos.X >= AObj.PlaceOffset.X)  and (FMouseDownPos.X <= (AObj.PlaceOffset.X + AOBj.Width)) then
+      begin
+        if Assigned(FOnClickImage) then
+          FOnClickImage(Self, FMouseDownPos.X, FMouseDownPos.Y, AObj as TksListItemImage, AHandled);
+      end;
+    end;
+  end;
+
+  if AHandled = False then
+    inherited;
 end;
 
 procedure TksListView.EndUpdate;
@@ -253,8 +272,17 @@ end;
 procedure TksListView.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
   Y: Single);
 begin
+  FMouseDownPos := PointF(X, Y);
   inherited;
+end;
 
+procedure TksListView.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Single);
+begin
+  inherited;
+  Application.ProcessMessages;
+  Sleep(100);
+  ItemIndex := -1;
 end;
 
 constructor TksListViewCanvas.Create(AListView: TksListView);
@@ -273,6 +301,8 @@ end;
 function TksListViewCanvas.DrawBitmap(AItem: TListViewItem; ABmp: TBitmap; X, Y,
   AWidth, AHeight: Extended): TListItemImage;
 begin
+  AItem.Text := ' ';
+  //TKsListView(AItem.Parent).ItemAppearanceObjects.ItemObjects.Text.Visible := False;
   Result := TksListItemImage.Create(AItem);
   Result.VertAlign := TListItemAlign.Center;
   Result.PlaceOffset.X := X;
@@ -280,6 +310,7 @@ begin
   Result.Width := AWidth;
   Result.Height := AHeight;
   Result.Bitmap := ABmp;
+  //TKsListView(AItem.Parent).ItemAppearanceObjects.ItemObjects.Text
 end;
 
 function TksListViewCanvas.TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
@@ -299,6 +330,15 @@ begin
   if Y <> 0 then ALbl.PlaceOffset.Y := Y;
   Result := ALbl;
 end;
+
+function TksListViewCanvas.TextOutRight(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
+begin
+  Result := TextOut(AItem, AText, X, Y, AWidth, ATrimming);
+  Result.PlaceOffset.X := -20;
+  Result.TextAlign := TTextAlign.Trailing;
+  Result.Align := TListItemAlign.Trailing;
+end;
+
 
 { TksListItemImage }
 
