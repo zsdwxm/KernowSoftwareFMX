@@ -71,9 +71,9 @@ begin
       AItem := ksListView1.Items.Add;
       ksListView1.Canvas.DrawBitmap(AItem, imgHome.Bitmap, 0, 0, 24, 24);
       ksListView1.Canvas.TextColor := claDimgray;
-      ksListView1.Canvas.TextOut(AItem, 'Line '+InttoStr(ICount), 30, 0, 0);
+      ksListView1.Canvas.TextOut(AItem, 'Line '+InttoStr(ICount), 30, 0, 0, 0);
       ksListView1.Canvas.TextColor := claDodgerblue;
-      ksListView1.Canvas.TextOutRight(AItem, 'cached scrolling :-)', 0, 0, 0);
+      ksListView1.Canvas.TextOutRight(AItem, 'cached scrolling :-)', 0, 0, 0, 0);
     end;
   finally
     ksListView1.Items.EndUpdate;

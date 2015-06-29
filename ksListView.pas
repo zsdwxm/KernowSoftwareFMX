@@ -44,11 +44,12 @@ type
     FFont: TFont;
     FTextColor: TAlphaColor;
     function GetTextWidth(AText: string): Single;
+    function GetTextHeight(AText: string): Single;
   public
     constructor Create(AListView: TksListView);
     destructor Destroy; override;
-    function TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
-    function TextOutRight(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
+    function TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth, AHeight: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
+    function TextOutRight(AItem: TListViewItem; AText: string; X, Y, AWidth, AHeight: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
     function DrawBitmap(AItem: TListViewItem; ABmp: TBitmap; X, Y, AWidth, AHeight: Extended): TListItemImage;
     property Font: TFont read FFont;
     property TextColor: TAlphaColor read FTextColor write FTextColor;
@@ -88,7 +89,7 @@ uses SysUtils, FMX.Platform, System.UIConsts, FMX.Forms, FMX.Dialogs;
 
 procedure Register;
 begin
-  RegisterComponents('kernow Software', [TksListView]);
+  RegisterComponents('kernow Software FMX', [TksListView]);
 end;
 
 function GetScreenScale: Single;
@@ -184,10 +185,11 @@ begin
                  AName,
                  4,
                  0,
-                 Width);
+                 Width,
+                 0);
 
   Canvas.TextColor := claDodgerblue;
-  with Canvas.TextOut(AItem, AValue, 4, 0, 160, TTextTrimming.Character) do
+  with Canvas.TextOut(AItem, AValue, 4, 0, 160, 0, TTextTrimming.Character) do
   begin
     PlaceOffset.X := -20;
     TextAlign := TTextAlign.Trailing;
@@ -309,6 +311,7 @@ var
 begin
   ABmp := TBitmap.Create;
   try
+    ABmp.BitmapScale := GetScreenScale;
     ABmp.Canvas.Font.Assign(FFont);
     Result := ABmp.Canvas.TextWidth(AText);
   finally
@@ -316,7 +319,21 @@ begin
   end;
 end;
 
-function TksListViewCanvas.TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
+function TksListViewCanvas.GetTextHeight(AText: string): Single;
+var
+  ABmp: TBitmap;
+begin
+  ABmp := TBitmap.Create;
+  try
+    ABmp.BitmapScale := GetScreenScale;
+    ABmp.Canvas.Font.Assign(FFont);
+    Result := ABmp.Canvas.TextWidth(AText);
+  finally
+    ABmp.Free;
+  end;
+end;
+
+function TksListViewCanvas.TextOut(AItem: TListViewItem; AText: string; X, Y, AWidth, AHeight: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
 var
   ALbl: TksListItemText;
 begin
@@ -331,14 +348,20 @@ begin
   if AWidth = 0 then
     AWidth := GetTextWidth(AText);
   ALbl.Width := AWidth;
+
+  if AHeight = 0 then
+    AHeight := GetTextHeight(AText);
+  //ALbl.Height := AHeight;
+
+
   if X <> 0 then ALbl.PlaceOffset.X := X;
   if Y <> 0 then ALbl.PlaceOffset.Y := Y;
   Result := ALbl;
 end;
 
-function TksListViewCanvas.TextOutRight(AItem: TListViewItem; AText: string; X, Y, AWidth: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
+function TksListViewCanvas.TextOutRight(AItem: TListViewItem; AText: string; X, Y, AWidth, AHeight: single; const ATrimming: TTextTrimming = TTextTrimming.None): TksListItemText;
 begin
-  Result := TextOut(AItem, AText, X, Y, AWidth, ATrimming);
+  Result := TextOut(AItem, AText, X, Y, AWidth, AHeight, ATrimming);
   Result.PlaceOffset.X := -20;
   Result.TextAlign := TTextAlign.Trailing;
   Result.Align := TListItemAlign.Trailing;
