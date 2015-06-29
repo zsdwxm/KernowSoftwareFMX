@@ -116,3 +116,9 @@ Demos/XE8/iOSDevice32/Release/untMain.o
 Demos/Entitlement.TemplateiOS.xml
 *.stat
 *.stat
+Demos/ksMenuDemo.stat
+*.stat
+Demos/ksMenuDemo.stat
+*.stat
+KernowSoftwareFMX.stat
+*.stat
