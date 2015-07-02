@@ -578,7 +578,7 @@ function TksListView.AddHeader(AText: string): TksListItemRow;
 begin
   Result := AddRow('', TListItemPurpose.Header, '');
   Result.Font.Style := [];
-  Result.TextColor := claMaroon;
+  Result.TextColor := claSilver;
   Result.Font.size := 16;
   Result.TextOut(AText, 0, Result.TextWidth(AText), TTextAlign.Trailing);
   Result.CacheRow;
