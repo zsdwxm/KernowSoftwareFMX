@@ -122,3 +122,7 @@ Demos/ksMenuDemo.stat
 *.stat
 KernowSoftwareFMX.stat
 *.stat
+*.plist
+Demos/iOSSimulator/Release/ksMenuDemo.entitlements
+*.entitlements
+*.ipa

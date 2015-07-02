@@ -31,8 +31,8 @@ requires
   fmx;
 
 contains
-  ksSlideMenu in 'ksSlideMenu.pas',
   ksListView in 'ksListView.pas',
+  ksSlideMenu in 'ksSlideMenu.pas',
   ksSegmentButtons in 'ksSegmentButtons.pas';
 
 end.

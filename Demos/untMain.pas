@@ -3,10 +3,12 @@ unit untMain;
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
   FMX.Controls.Presentation, ksSlideMenu, FMX.Layouts, FMX.Objects,
-  FMX.TabControl, FMX.ListBox, FMX.ListView.Types, FMX.ListView, ksListView;
+  FMX.TabControl, FMX.ListBox, FMX.ListView.Types, FMX.ListView, ksListView,
+  ksSegmentButtons;
 
 type
   TForm6 = class(TForm)
@@ -21,12 +23,14 @@ type
     imgContact: TImage;
     layoutImages: TLayout;
     SlideMenu1: TksSlideMenu;
+
     SlideMenu2: TksSlideMenu;
     imgAbout: TImage;
     TabControl1: TTabControl;
-    tabAbout: TTabItem;
-    tabContact: TTabItem;
+    tabListView: TTabItem;
+    tabSegmentButtons: TTabItem;
     ksListView1: TksListView;
+    ksSegmentButtons1: TksSegmentButtons;
     procedure FormCreate(Sender: TObject);
     procedure btnRightMenuClick(Sender: TObject);
     procedure btnLeftMenuClick(Sender: TObject);
@@ -62,18 +66,20 @@ end;
 procedure TForm6.BuildAboutListView;
 var
   ICount: integer;
-  AItem: TListViewItem;
 begin
   ksListView1.Items.BeginUpdate;
   try
     for ICount := 0 to 100 do
     begin
-      AItem := ksListView1.Items.Add;
-      ksListView1.Canvas.DrawBitmap(AItem, imgHome.Bitmap, 0, 0, 24, 24);
-      ksListView1.Canvas.TextColor := claDimgray;
-      ksListView1.Canvas.TextOut(AItem, 'Line '+InttoStr(ICount), 30, 0, 0, 0);
-      ksListView1.Canvas.TextColor := claDodgerblue;
-      ksListView1.Canvas.TextOutRight(AItem, 'cached scrolling :-)', 0, 0, 0, 0);
+      with ksListView1.AddRow do
+      begin
+        TextColor := claBlack;
+        DrawBitmap(imgHome.Bitmap, 0, 24, 24);
+        TextOut('Line '+InttoStr(ICount), 40, 150);
+        TextColor := claDodgerblue;
+        TextOutRight('Cached scrolling :-)');
+
+      end;
     end;
   finally
     ksListView1.Items.EndUpdate;
@@ -91,20 +97,23 @@ begin
   TabControl1.TabPosition := TTabPosition.None;
 
   SlideMenu1.AddMenuItem('LISTVIEW', 'Cached ListView', imgHome.Bitmap);
-  SlideMenu1.AddMenuItem('CONTACT', 'Contact Us', imgContact.Bitmap);
+  SlideMenu1.AddMenuItem('SEGMENT_BUTTONS', 'Segment Buttons', imgContact.Bitmap);
   SlideMenu1.ItemIndex := 0;
 
   SlideMenu2.AddMenuItem('ANOTHER', 'Another Menu', imgHome.Bitmap);
-  SlideMenu2.AddMenuItem('ABOUT', 'About', imgSearch.Bitmap);
 
   SlideMenu2.ItemIndex := 0;
   layoutImages.Visible := False;
+
+  ksSegmentButtons1.AddButton('Button 1', '1');
+  ksSegmentButtons1.AddButton('Button 2', '2');
+  ksSegmentButtons1.AddButton('Button 3', '3');
 end;
 
 procedure TForm6.SlideMenu1SelectMenuItemEvent(Sender: TObject; AId: string);
 begin
-  if AId = 'LISTVIEW' then TabControl1.ActiveTab := tabAbout;
-  if AId = 'CONTACT' then TabControl1.ActiveTab := tabContact;
+  if AId = 'LISTVIEW' then TabControl1.ActiveTab := tabListView;
+  if AId = 'SEGMENT_BUTTONS' then TabControl1.ActiveTab := tabSegmentButtons;
 end;
 
 end.

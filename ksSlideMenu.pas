@@ -163,6 +163,7 @@ type
     procedure ToggleMenu;
     procedure UpdateMenu;
     procedure ShowForm(AForm: TForm);
+    property Showing: Boolean read FShowing;
     //property FormImage: TImage
   published
     property Font: TFont read FFont write FFont;
@@ -188,7 +189,7 @@ type
 
 implementation
 
-uses FMX.Platform, SysUtils, FMX.Utils, FMX.Ani;
+uses FMX.Platform, SysUtils, FMX.Ani;
 
 procedure Register;
 begin
