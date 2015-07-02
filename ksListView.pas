@@ -87,12 +87,12 @@ type
 
     function DrawBitmapRight(ABmp: TBitmap; AWidth, AHeight, ARightPadding: single): TksListItemRowImage;
 
-    function TextOut(AText: string; X, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
-    function TextOut(AText: string; X, Y, AWidth, AHeight: single): TksListItemRowText; overload;
+    //function TextOut(AText: string; X, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
+    function TextOut(AText: string; X, Y, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
 
     function TextOutRight(AText: string; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
     function TextOutRight(AText: string; AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
-    function TextOutRight(AText: string; Y, AWidth: single): TksListItemRowText; overload;
+    function TextOutRight(AText: string; Y, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
     property Font: TFont read FFont;
     property TextColor: TAlphaColor read FTextColor write FTextColor;
     procedure CacheRow;
@@ -487,12 +487,21 @@ begin
   Result := Bitmap.Canvas.TextWidth(AText);
 end;
 
-function TksListItemRow.TextOut(AText: string; X, Y, AWidth, AHeight: single): TksListItemRowText;
+function TksListItemRow.TextOut(AText: string; X, Y, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText;
+var
+  AHeight: single;
+  AYPos: single;
 begin
+  AYPos := Y;
+  case AVertAlign of
+    TTextAlign.Center: AYPos := ((RowHeight(False) - TextHeight(AText)) / 2) + AYPos;
+    TTextAlign.Trailing: AYPos := (RowHeight(False) -  TextHeight(AText)) + AYPos;
+  end;
+
+
   Result := TksListItemRowText.Create(Self);
-  if AHeight = 0 then
-    AHeight := RowHeight(False);
-  Result.FRect := RectF(X, Y, X+AWidth, Y+AHeight);
+  AHeight := TextHeight(AText);
+  Result.FRect := RectF(X, AYPos, X+AWidth, AYPos+AHeight);
   Result.Font.Assign(FFont);
   Result.TextAlignment := TTextAlign.Leading;
   Result.TextColor := FTextColor;
@@ -508,26 +517,23 @@ begin
   Result := TextOutRight(AText, AWidth, AVertAlign);
 end;
 
-function TksListItemRow.TextOut(AText: string; X, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText;
+(*function TksListItemRow.TextOut(AText: string; X, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText;
 var
   AHeight: single;
   AYPos: single;
 begin
-  AHeight := TextHeight(AText);
+  {AHeight := TextHeight(AText);
   case AVertAlign of
     TTextAlign.Leading: AYPos := 4;
     TTextAlign.Trailing: AYPos := (RowHeight(False) - AHeight) - 4;
     TTextAlign.Center: AYPos := (RowHeight(False) - AHeight) / 2;
-  end;
-  Result := TextOut(AText, X, AYPos, AWidth, AHeight)
-end;
+  end;}
+  Result := TextOut(AText, X, AYPos, AWidth)
+end;    *)
 
-function TksListItemRow.TextOutRight(AText: string; Y, AWidth: single): TksListItemRowText;
-var
-  AHeight: single;
+function TksListItemRow.TextOutRight(AText: string; Y, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText;
 begin
-  AHeight := TextHeight(AText);
-  Result := TextOut(AText, 0, Y, AWidth, AHeight);
+  Result := TextOut(AText, 0, Y, AWidth);
   Result.TextAlignment := TTextAlign.Trailing;
   Result.Rect.Offset(ScreenWidth - Result.Rect.Right, 0);
 end;
@@ -537,13 +543,13 @@ var
   AHeight: single;
   AYPos: single;
 begin
-  AHeight := TextHeight(AText);
+  {AHeight := TextHeight(AText);
   case AVertAlign of
     TTextAlign.Leading: AYPos := 4;
     TTextAlign.Trailing: AYPos := (RowHeight(False) - AHeight) - 4;
     TTextAlign.Center: AYPos := (RowHeight(False) - AHeight) / 2;
-  end;
-  Result := TextOutRight(AText, AYPos, AWidth);
+  end;  }
+  Result := TextOutRight(AText, AYPos, AWidth, AVertAlign);
 end;
 
 { TksListViewAppearence }
@@ -582,7 +588,7 @@ begin
   Result.Font.Style := [];
   Result.TextColor := claSilver;
   Result.Font.size := 16;
-  Result.TextOut(AText, 0, Result.TextWidth(AText), TTextAlign.Trailing);
+  Result.TextOut(AText, 0, 0, Result.TextWidth(AText), TTextAlign.Trailing);
   Result.CacheRow;
 end;
 

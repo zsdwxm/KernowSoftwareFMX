@@ -73,12 +73,13 @@ begin
     begin
       with ksListView1.AddRow do
       begin
-        TextColor := claBlack;
         DrawBitmap(imgHome.Bitmap, 0, 24, 24);
+        // first label...
+        TextColor := claBlack;
         TextOut('Line '+InttoStr(ICount), 40, 150);
+        // right aligned label...
         TextColor := claDodgerblue;
         TextOutRight('Cached scrolling :-)');
-
       end;
     end;
   finally
