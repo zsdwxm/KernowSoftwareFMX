@@ -77,12 +77,16 @@ type
     function GetRowObjectCount: integer;
     property ListView: TCustomListView read GetListView;
     procedure DoOnListChanged(Sender: TObject; const Item: TksListItemRowObj; Action: TCollectionNotification);
+    function ScreenWidth: single;
   public
     constructor Create(const AOwner: TListItem); override;
     destructor Destroy; override;
     function DrawBitmap(ABmp: TBitmap; X, AWidth, AHeight: single): TksListItemRowImage overload;
     function DrawBitmap(ABmpIndex: integer; X, AWidth, AHeight: single): TksListItemRowImage overload;
     function DrawBitmap(ABmp: TBitmap; X, Y, AWidth, AHeight: single): TksListItemRowImage overload;
+
+    function DrawBitmapRight(ABmp: TBitmap; AWidth, AHeight, ARightPadding: single): TksListItemRowImage;
+
     function TextOut(AText: string; X, AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText; overload;
     function TextOut(AText: string; X, Y, AWidth, AHeight: single): TksListItemRowText; overload;
 
@@ -389,6 +393,16 @@ begin
   Result := DrawBitmap(ABmp, X, AYpos, AWidth, AHeight);
 end;
 
+function TksListItemRow.DrawBitmapRight(ABmp: TBitmap; AWidth, AHeight, ARightPadding: single): TksListItemRowImage;
+var
+  AYpos: single;
+  AXPos: single;
+begin
+  AYpos := (RowHeight(False) - AHeight) / 2;
+  AXPos := ScreenWidth - (AWidth + ARightPadding);
+  Result := DrawBitmap(ABmp, AXPos, AYpos, AWidth, AHeight);
+end;
+
 function TksListItemRow.DrawBitmap(ABmpIndex: integer; X, AWidth, AHeight: single): TksListItemRowImage overload;
 var
   ABmp: TBitmap;
@@ -421,6 +435,14 @@ begin
   lv := TksListView(Owner.Parent);
   Result := lv.Width;
   if AScale then Result := Result * GetScreenScale;
+end;
+
+function TksListItemRow.ScreenWidth: single;
+begin
+  Result := TksListView(Owner.Parent).Width;
+  {$IFDEF MSWINDOWS}
+  Result := Result - 40;
+  {$ENDIF}
 end;
 
 function TksListItemRow.DrawBitmap(ABmp: TBitmap; X, Y, AWidth, AHeight: single): TksListItemRowImage;
@@ -500,17 +522,12 @@ end;
 
 function TksListItemRow.TextOutRight(AText: string; Y, AWidth: single): TksListItemRowText;
 var
-  AScreenWidth: single;
   AHeight: single;
 begin
   AHeight := TextHeight(AText);
   Result := TextOut(AText, 0, Y, AWidth, AHeight);
   Result.TextAlignment := TTextAlign.Trailing;
-  AScreenWidth := TksListView(Owner.Parent).Width;
-  {$IFDEF MSWINDOWS}
-  AScreenWidth := AScreenWidth - 40;
-  {$ENDIF}
-  Result.Rect.Offset(AScreenWidth - Result.Rect.Right, 0);
+  Result.Rect.Offset(ScreenWidth - Result.Rect.Right, 0);
 end;
 
 function TksListItemRow.TextOutRight(AText: string; AWidth: single; const AVertAlign: TTextAlign = TTextAlign.Center): TksListItemRowText;
@@ -563,7 +580,7 @@ begin
   Result.Font.Style := [];
   Result.TextColor := claMaroon;
   Result.Font.size := 16;
-  Result.TextOut(AText, 0, 100, TTextAlign.Trailing);
+  Result.TextOut(AText, 0, Result.TextWidth(AText), TTextAlign.Trailing);
   Result.CacheRow;
 end;
 
