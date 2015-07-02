@@ -124,9 +124,12 @@ type
   TksListView = class(TCustomListView)
   private
     FScreenScale: single;
+    FDefaultRowHeight: integer;
     FAppearence: TksListViewAppearence;
     FOnClick: TksListViewRowClickEvent;
     FMouseDownPos: TPointF;
+    FItemHeight: integer;
+    procedure SetItemHeight(const Value: integer);
     { Private declarations }
   protected
     procedure SetColorStyle(AName: string; AColor: TAlphaColor);
@@ -145,8 +148,7 @@ type
     { Public declarations }
   published
     property Appearence: TksListViewAppearence read FAppearence write FAppearence;
-    property OnUpdatingObjects;
-    property OnUpdateObjects;
+    property ItemHeight: integer read FItemHeight write SetItemHeight default 44;
     property OnEditModeChange;
     property OnEditModeChanging;
     property EditMode;
@@ -615,6 +617,27 @@ begin
   end;
 end;
 
+procedure TksListView.SetItemHeight(const Value: integer);
+var
+  ICount: integer;
+  ARow: TksListItemRow;
+begin
+  BeginUpdate;
+  try
+    FItemHeight := Value;
+    for ICount := 0 to Items.Count-1 do
+    begin
+      ARow := Items[ICount].Objects.FindObject('ksRow') as TKsListItemRow;
+      if ARow <> nil then
+        ARow.Cached := False;
+    end;
+  finally
+    ItemAppearance.ItemHeight := Value;
+    EndUpdate;
+  end;
+  Repaint;
+end;
+
 procedure TksListView.ApplyStyle;
 var
   StyleObject: TFmxObject;
@@ -630,6 +653,7 @@ begin
   inherited Create(AOwner);
   FScreenScale := GetScreenScale;
   FAppearence := TksListViewAppearence.Create(Self);
+  FItemHeight := 44;
 end;
 
 destructor TksListView.Destroy;
